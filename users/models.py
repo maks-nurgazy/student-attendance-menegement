@@ -1,0 +1,104 @@
+from PIL import Image
+from django.contrib.auth.base_user import AbstractBaseUser
+from django.contrib.auth.models import PermissionsMixin
+from django.core.exceptions import ValidationError
+from django.utils.translation import gettext_lazy as _
+from django.db import models
+
+from users.managers import TeacherManager, StudentManager, AdminManager
+
+
+class User(AbstractBaseUser, PermissionsMixin):
+    class Roles(models.TextChoices):
+        ADMIN = "ADMIN", "Admin"
+        ADVISOR = "ADVISOR", "Advisor"
+        TEACHER = "TEACHER", "Teacher"
+        STUDENT = "STUDENT", "Student"
+
+    class Meta:
+        verbose_name = 'user'
+        verbose_name_plural = 'users'
+
+    base_role = Roles.ADMIN
+
+    email = models.EmailField(unique=True)
+    password = models.CharField(max_length=128)
+    first_name = models.CharField(max_length=30, blank=True)
+    last_name = models.CharField(max_length=50, blank=True)
+    role = models.CharField(choices=Roles.choices, blank=True, null=True, default=base_role, max_length=20)
+    is_active = models.BooleanField(default=True)
+    is_staff = models.BooleanField(default=False)
+
+    USERNAME_FIELD = 'email'
+
+    def save(self, *args, **kwargs):
+        if not self.password:
+            raise ValidationError("Password is required")
+        if not self.id:
+            self.role = self.base_role
+        return super().save(*args, **kwargs)
+
+    @property
+    def full_name(self):
+        return f'{self.first_name} {self.last_name}'
+
+    objects = AdminManager()
+
+    def __str__(self):
+        return self.email
+
+
+class Teacher(User):
+    base_role = User.Roles.TEACHER
+    objects = TeacherManager()
+
+    class Meta:
+        proxy = True
+
+
+class Student(User):
+    base_role = User.Roles.STUDENT
+    objects = StudentManager()
+
+    class Meta:
+        proxy = True
+
+
+def profile_img_dir(instance, filename):
+    return f'profile/{filename}'
+
+
+class StudentProfile(models.Model):
+    class YearInUniversity(models.TextChoices):
+        FRESHMAN = 'FR', _('Freshman')
+        SOPHOMORE = 'SO', _('Sophomore')
+        JUNIOR = 'JR', _('Junior')
+        SENIOR = 'SR', _('Senior')
+        GRADUATE = 'GR', _('Graduate')
+
+    year_in_university = models.CharField(
+        max_length=2,
+        choices=YearInUniversity.choices,
+        default=YearInUniversity.FRESHMAN,
+    )
+
+    user = models.OneToOneField(Student, on_delete=models.CASCADE)
+    gender = models.CharField(max_length=1, choices=(('M', 'Male'), ('F', 'Female')))
+    father = models.CharField(max_length=30, default='non')
+    mother = models.CharField(max_length=30, default='non')
+    image = models.ImageField(upload_to=profile_img_dir, default='profile/default.jpg')
+
+    def save(self, *args, **kwargs):
+        super(StudentProfile, self).save(*args, **kwargs)
+        img = Image.open(self.image.path)
+
+        if img.height > 300 or img.width > 300:
+            size = (300, 300)
+            img.thumbnail(size)
+            img.save(self.image.path)
+
+    def is_upperclass(self):
+        return self.year_in_university in {
+            self.YearInUniversity.JUNIOR,
+            self.YearInUniversity.SENIOR,
+        }
