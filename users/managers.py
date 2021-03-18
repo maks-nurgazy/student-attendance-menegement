@@ -1,9 +1,11 @@
 from django.contrib.auth.base_user import BaseUserManager
 from django.db import models
+from django.db.models import Manager
 from django.utils.translation import ugettext_lazy as _
 
 
-class UserManager(BaseUserManager):
+class AdminManager(BaseUserManager):
+
     def create_user(self, email, password, **extra_fields):
 
         if not email:
@@ -16,42 +18,39 @@ class UserManager(BaseUserManager):
         user.save(using=self._db)
         return user
 
-
-class AdminManager(UserManager):
-
     def create_superuser(self, email, password, **extra_fields):
         extra_fields.setdefault('is_active', True)
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
-        extra_fields.setdefault('role', "ADMIN")
+        super_user = self.create_user(email, password, **extra_fields)
+        super_user.roles.add(1)
 
-        if extra_fields.get('role') != 'ADMIN':
-            raise ValueError('Superuser must have role of Global Admin')
-        return self.create_user(email, password, **extra_fields)
-
-    def get_queryset(self, *args, **kwargs):
-        return super().get_queryset(*args, **kwargs).filter(role='ADMIN')
-
-
-class TeacherManager(UserManager):
-
-    def create_librarian(self, email, password, **extra_fields):
-        extra_fields.setdefault('is_active', True)
-        extra_fields.setdefault('is_staff', True)
-        extra_fields.setdefault('role', "LIBRARIAN")
-        return self.create_user(email, password, **extra_fields)
-
-    def get_queryset(self, *args, **kwargs):
-        return super().get_queryset(*args, **kwargs).filter(role='LIBRARIAN')
-
-
-class StudentManager(UserManager):
+        return super_user
 
     def create_student(self, email, password, **extra_fields):
         extra_fields.setdefault('is_active', True)
         extra_fields.setdefault('is_staff', False)
-        extra_fields.setdefault('role', "CUSTOMER")
-        return self.create_user(email, password, **extra_fields)
+        student = self.create_user(email, password, **extra_fields)
+        student.roles.add(4)
+
+        return student
+
+    def create_teacher(self, email, password, **extra_fields):
+        extra_fields.setdefault('is_active', True)
+        extra_fields.setdefault('is_staff', True)
+        teacher = self.create_user(email, password, **extra_fields)
+        teacher.roles.add(3)
+
+        return teacher
+
+
+class TeacherManager(Manager):
 
     def get_queryset(self, *args, **kwargs):
-        return super().get_queryset(*args, **kwargs).filter(role='CUSTOMER')
+        return super().get_queryset(*args, **kwargs).filter(roles__in=[3])
+
+
+class StudentManager(Manager):
+
+    def get_queryset(self, *args, **kwargs):
+        return super().get_queryset(*args, **kwargs).filter(roles__in=[4])

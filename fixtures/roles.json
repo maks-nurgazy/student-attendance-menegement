@@ -1,0 +1,22 @@
+[
+{
+    "model": "users.role",
+    "pk": 1,
+    "fields": {}
+},
+{
+    "model": "users.role",
+    "pk": 2,
+    "fields": {}
+},
+{
+    "model": "users.role",
+    "pk": 3,
+    "fields": {}
+},
+{
+    "model": "users.role",
+    "pk": 4,
+    "fields": {}
+}
+]

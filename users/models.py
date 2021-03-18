@@ -8,35 +8,38 @@ from django.db import models
 from users.managers import TeacherManager, StudentManager, AdminManager
 
 
-class User(AbstractBaseUser, PermissionsMixin):
-    class Roles(models.TextChoices):
-        ADMIN = "ADMIN", "Admin"
-        ADVISOR = "ADVISOR", "Advisor"
-        TEACHER = "TEACHER", "Teacher"
-        STUDENT = "STUDENT", "Student"
+class Role(models.Model):
+    ADMIN = 1
+    SUPERVISOR = 2
+    TEACHER = 3
+    STUDENT = 4
 
+    ROLE_CHOICES = (
+        (ADMIN, 'Admin'),
+        (TEACHER, 'Teacher'),
+        (SUPERVISOR, 'Supervisor'),
+        (STUDENT, 'Student'),
+    )
+    id = models.PositiveSmallIntegerField(choices=ROLE_CHOICES, primary_key=True)
+
+    def __str__(self):
+        return self.get_id_display()
+
+
+class User(AbstractBaseUser, PermissionsMixin):
     class Meta:
         verbose_name = 'user'
         verbose_name_plural = 'users'
-
-    base_role = Roles.ADMIN
 
     email = models.EmailField(unique=True)
     password = models.CharField(max_length=128)
     first_name = models.CharField(max_length=30, blank=True)
     last_name = models.CharField(max_length=50, blank=True)
-    role = models.CharField(choices=Roles.choices, blank=True, null=True, default=base_role, max_length=20)
+    roles = models.ManyToManyField(Role)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
 
     USERNAME_FIELD = 'email'
-
-    def save(self, *args, **kwargs):
-        if not self.password:
-            raise ValidationError("Password is required")
-        if not self.id:
-            self.role = self.base_role
-        return super().save(*args, **kwargs)
 
     @property
     def full_name(self):
@@ -49,7 +52,6 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 
 class Teacher(User):
-    base_role = User.Roles.TEACHER
     objects = TeacherManager()
 
     class Meta:
@@ -57,7 +59,6 @@ class Teacher(User):
 
 
 class Student(User):
-    base_role = User.Roles.STUDENT
     objects = StudentManager()
 
     class Meta:
