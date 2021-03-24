@@ -4,7 +4,7 @@ python:
 services:
 - postgresql
 env:
-  - DJANGO=3.1.7
+- DJANGO=3.1.7
 install:
 - pip install -r requirements.txt
 before_script:
@@ -15,10 +15,8 @@ script:
 deploy:
   provider: heroku
   api_key:
-    secure: XubQeXsvfq6YUXv6FVOzCuNF3m+Q+zanWIwwLZPvWCBkYN3xDiv/9CWn9v8hSw1Oi/GgBjQVyVCMpOZw5GgAS2Gypw0PjQ8r3Cnuc11YXdv3mFHZk6rZnu0qf+OfqrPrYNU9PMB7xsgM5Bh6cWiXEGdejr55jyPhYhOtqpaYYPEx7AgswqrzHPptl6p45IQUpo2J7PYIJ46m2WdhGZTtdn3J3hiqFAgaqAiIu/q0MYl/FgdB0oqMfRVJolnxIiRp6USYDz4yG5SJZLd/I+4T1VU+rj6kR89+8GJVu7txjEdmXYPg0o26aErbuS+bjenIDsC9/0op0jP4YYQL3PKrAzb0BLTjxcE5ow6cVLSDwjwk/v0OOKNn1BKhV40ZNF7oV0AM10gYVpanzCAGSjaSAjsWEwYeAePGJLJeYDt/3n+Kp5GKY7F0a8teuZSYsBZDlKA1spm5TV/T0BtL3j26diqTNblgika2PYXxjD+Tr0i7c1GJBpqLQwxL9H545w1LBGM42odwvphmoPDu1IffP5fNohoNc1lwk08L3tP7W02fYaRlsCJ26LYRvUzdca3Ndq3uepFeMaIaSoYR11RFaJqTDDzagsNZs7BTKtPgh8Mrr16g4J9Ol4vwOphCuaox0Evvegbqt2ZQudWqYLtjtwCNQTQznDV+Xah6gt4/MKM=
-  strategy: git
-  app:
-    master: student-attendance-menegement
-  run:
-    - "rake db:makemigrations"
-    - "rake db:migrate"
+    secure: NK6BXP6sPRzf+yyohP0ICvsqdakl8idavhtEUFq1ls4s1Ddok7u1J/wak1hY8YjZqYdn7aiOzEEsYEoZk1onaLLvRIfdJXtPgyPzfacUOEdqFRDq/+jASQthRmsUB4KlfjwAE76tnt4Do8+4MeemVCORCzhmrZoBJEYEt+ptnOCiCNodn4uVOE3raNd4KTygInJxbDM9h064AM8qLKmC5vjf+Q5xQH8IWKVEeAsUaBTFQ/mWVeQ0re1z0IFZiiPKm/0M1vQJqMbZhMD5KZYf73rAplxvej4gcQRmTXaDpjP9toUx5NMpVUgyU0vY5xWCSiQsqW6JVU0YPN6gqGF2YO5xvW9tgZUp8CY1l4bccn292JKpEwXIdBm4KAZNxMqjvjAHnzkjyjpkb4QHMx6Jzuob4ZLJNTtvVF8hD5ebFS6kq/NTa5J4/7oaU4RTq4HSk1tO50iQ8V8v79lMyuiT8r2Uz6F6V5F1EfK6YXRcnuzKGh+NE9mHp5dJdSd82cOXvwj23gmXOFHwV+v0qwYvQPz4ZxE17iGaZhgj6UldG198kB0k9C4HNnJ2NpMYJ07x0+stR65xSi+2Fr5432dq+/sm2PjY9+aX6wqooDBjM+IkMkiEPPd4zYQqXoWM2LRU0V9kSLqprSJB7OvnOtFVz9Nqx3xh359YI6f584s6X4c=
+  app: student-attendance-menegement
+  on:
+    repo: maks-nurgazy/diploma-project
+  skip_cleanup: 'true'
