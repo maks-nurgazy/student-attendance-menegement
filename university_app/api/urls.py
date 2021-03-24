@@ -1,7 +1,7 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 
-from university_app.api.views.university_views import UniversityView, FacultyViewSet, DepartmentViewSet
+from university_app.api.views import FacultyViewSet, DepartmentViewSet, UniversityView
 
 university = DefaultRouter()
 university.register('faculties', FacultyViewSet)

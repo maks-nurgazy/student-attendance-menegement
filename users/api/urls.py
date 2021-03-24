@@ -1,15 +1,16 @@
-from django.contrib import admin
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
+from rest_framework_simplejwt import views as jwt_views
 
-from users.api.views.student_views import StudentViewSet
-from users.api.views.user_login_view import UserLoginView
+from users.api.views import TeacherViewSet, StudentViewSet, UserLoginView
 
 router = DefaultRouter()
 router.register('students', StudentViewSet)
-router.register('teachers', StudentViewSet)
+router.register('teachers', TeacherViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
     path('auth/login/', UserLoginView.as_view()),
+    path('token/obtain/', jwt_views.TokenObtainPairView.as_view(), name='token_create'),
+    path('token/refresh/', jwt_views.TokenRefreshView.as_view(), name='token_refresh'),
 ]

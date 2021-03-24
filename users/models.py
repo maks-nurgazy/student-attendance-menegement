@@ -71,23 +71,22 @@ def profile_img_dir(instance, filename):
 
 class StudentProfile(models.Model):
     class YearInUniversity(models.TextChoices):
-        FRESHMAN = 'FR', _('Freshman')
-        SOPHOMORE = 'SO', _('Sophomore')
-        JUNIOR = 'JR', _('Junior')
-        SENIOR = 'SR', _('Senior')
-        GRADUATE = 'GR', _('Graduate')
+        FRESHMAN = 1, _('Freshman')
+        SOPHOMORE = 2, _('Sophomore')
+        JUNIOR = 3, _('Junior')
+        SENIOR = 4, _('Senior')
+        GRADUATE = 5, _('Graduate')
 
-    year_in_university = models.CharField(
-        max_length=2,
+    year_in_university = models.SmallIntegerField(
         choices=YearInUniversity.choices,
         default=YearInUniversity.FRESHMAN,
     )
 
-    user = models.OneToOneField(Student, on_delete=models.CASCADE)
-    gender = models.CharField(max_length=1, choices=(('M', 'Male'), ('F', 'Female')))
+    user = models.OneToOneField(Student, on_delete=models.CASCADE, related_name='profile')
+    gender = models.CharField(max_length=1, choices=(('M', 'Male'), ('F', 'Female')), default='G')
     father = models.CharField(max_length=30, default='non')
     mother = models.CharField(max_length=30, default='non')
-    image = models.ImageField(upload_to=profile_img_dir, default='profile/default.jpg')
+    image = models.ImageField(upload_to=profile_img_dir, default='profile/default.png')
 
     def save(self, *args, **kwargs):
         super(StudentProfile, self).save(*args, **kwargs)

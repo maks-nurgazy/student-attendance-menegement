@@ -22,4 +22,5 @@ urlpatterns = [
     path('attendance-management/api/', include('university_app.api.urls')),
     path('attendance-management/api/', include('attendance_app.api.urls')),
     path('attendance-management/api/', include('course_app.api.urls')),
+    path('api-auth/', include('rest_framework.urls')),
 ]

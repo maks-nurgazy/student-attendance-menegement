@@ -4,6 +4,7 @@ from django.db import models
 class Course(models.Model):
     name = models.CharField(max_length=30)
     credit = models.SmallIntegerField()
+    desc = models.PositiveSmallIntegerField(help_text="Ex: Course for 1 class", default=1)
     students = models.ManyToManyField('users.Student', related_name='courses')
     teacher = models.ForeignKey('users.Teacher', on_delete=models.SET_NULL, null=True, related_name='course_list')
 
