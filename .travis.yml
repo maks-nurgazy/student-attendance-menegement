@@ -1,0 +1,24 @@
+language: python
+python:
+- '3.8'
+services:
+- postgresql
+env:
+  - DJANGO=3.1.7
+install:
+- pip install -r requirements.txt
+before_script:
+- psql -c 'create database attendance_management;' -U postgres
+- python manage.py migrate --noinput
+script:
+- python manage.py test
+deploy:
+  provider: heroku
+  api_key:
+    secure: XubQeXsvfq6YUXv6FVOzCuNF3m+Q+zanWIwwLZPvWCBkYN3xDiv/9CWn9v8hSw1Oi/GgBjQVyVCMpOZw5GgAS2Gypw0PjQ8r3Cnuc11YXdv3mFHZk6rZnu0qf+OfqrPrYNU9PMB7xsgM5Bh6cWiXEGdejr55jyPhYhOtqpaYYPEx7AgswqrzHPptl6p45IQUpo2J7PYIJ46m2WdhGZTtdn3J3hiqFAgaqAiIu/q0MYl/FgdB0oqMfRVJolnxIiRp6USYDz4yG5SJZLd/I+4T1VU+rj6kR89+8GJVu7txjEdmXYPg0o26aErbuS+bjenIDsC9/0op0jP4YYQL3PKrAzb0BLTjxcE5ow6cVLSDwjwk/v0OOKNn1BKhV40ZNF7oV0AM10gYVpanzCAGSjaSAjsWEwYeAePGJLJeYDt/3n+Kp5GKY7F0a8teuZSYsBZDlKA1spm5TV/T0BtL3j26diqTNblgika2PYXxjD+Tr0i7c1GJBpqLQwxL9H545w1LBGM42odwvphmoPDu1IffP5fNohoNc1lwk08L3tP7W02fYaRlsCJ26LYRvUzdca3Ndq3uepFeMaIaSoYR11RFaJqTDDzagsNZs7BTKtPgh8Mrr16g4J9Ol4vwOphCuaox0Evvegbqt2ZQudWqYLtjtwCNQTQznDV+Xah6gt4/MKM=
+  strategy: git
+  app:
+    master: student-attendance-menegement
+  run:
+    - "rake db:makemigrations"
+    - "rake db:migrate"
