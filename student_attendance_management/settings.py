@@ -25,9 +25,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'nqew7o9-j2(#_o_8)9+l6m$93!rs$p8m*+$^g#fs%r@(ffe_@9'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DEBUG', False)
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*', 'https://student-attendance-menegement.herokuapp.com/',
+                 'student-attendance-menegement.herokuapp.com/', ]
 
 # Application definition
 
@@ -95,8 +96,6 @@ DATABASES = {
 }
 
 if 'TRAVIS' in os.environ:
-    DEBUG = False
-    ALLOWED_HOSTS = ['*', 'student-attendance-menegement.herokuapp.com']
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql_psycopg2',
