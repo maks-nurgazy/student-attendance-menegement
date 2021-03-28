@@ -3,16 +3,32 @@ from django.contrib.auth import authenticate
 from rest_framework import serializers
 from rest_framework_simplejwt.tokens import RefreshToken
 
+from university_app.models import Department
 from users.models import User, Teacher, Student
+
+
+class DepartmentRelatedField(serializers.RelatedField):
+
+    def to_internal_value(self, data):
+        print(data)
+        department_id = data
+        try:
+            department = Department.objects.get(id=department_id)
+        except Department.DoesNotExist:
+            raise serializers.ValidationError('Department with this id does not exist')
+        return department
+
+    def to_representation(self, instance):
+        return "hello"
 
 
 class StudentSerializer(serializers.ModelSerializer):
     password = serializers.CharField(max_length=128, write_only=True)
-
+    department = DepartmentRelatedField(queryset=Department.objects.all(), write_only=True)
 
     class Meta:
         model = Student
-        fields = ('id', 'first_name', 'last_name', 'email', 'password')
+        fields = ('id', 'first_name', 'last_name', 'email', 'password', 'department')
 
     def get_fields(self, *args, **kwargs):
         fields = super(StudentSerializer, self).get_fields(*args, **kwargs)
@@ -29,7 +45,11 @@ class StudentSerializer(serializers.ModelSerializer):
         return instance
 
     def create(self, validated_data):
-        return User.objects.create_student(**validated_data)
+        department = validated_data['department']
+
+        # user = User.objects.create_student(**validated_data)
+
+        return User.objects.first()
 
 
 class TeacherSerializer(serializers.ModelSerializer):
