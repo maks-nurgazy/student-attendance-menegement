@@ -12,6 +12,7 @@ Pillow==8.1.2
 psycopg2==2.8.6
 psycopg2-binary==2.8.6
 PyJWT==2.0.1
+python-dotenv==0.16.0
 pytz==2021.1
 serializers==0.2.4
 sqlparse==0.4.1

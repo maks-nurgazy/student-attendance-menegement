@@ -1,21 +1,21 @@
 language: python
 python:
-  - '3.8'
+- '3.8'
 services:
-  - postgresql
+- postgresql
 env:
-  - DJANGO=3.1.7
+- DJANGO=3.1.7
 install:
-  - pip install -r requirements.txt
+- pip install -r requirements.txt
 before_script:
-  - psql -c 'create database attendance_management;' -U postgres
-  - python manage.py migrate --noinput
+- psql -c 'create database attendance_management;' -U postgres
+- python manage.py migrate --noinput
 script:
-  - python manage.py test
+- python manage.py test
 deploy:
   provider: heroku
   api_key:
-    secure: NK6BXP6sPRzf+yyohP0ICvsqdakl8idavhtEUFq1ls4s1Ddok7u1J/wak1hY8YjZqYdn7aiOzEEsYEoZk1onaLLvRIfdJXtPgyPzfacUOEdqFRDq/+jASQthRmsUB4KlfjwAE76tnt4Do8+4MeemVCORCzhmrZoBJEYEt+ptnOCiCNodn4uVOE3raNd4KTygInJxbDM9h064AM8qLKmC5vjf+Q5xQH8IWKVEeAsUaBTFQ/mWVeQ0re1z0IFZiiPKm/0M1vQJqMbZhMD5KZYf73rAplxvej4gcQRmTXaDpjP9toUx5NMpVUgyU0vY5xWCSiQsqW6JVU0YPN6gqGF2YO5xvW9tgZUp8CY1l4bccn292JKpEwXIdBm4KAZNxMqjvjAHnzkjyjpkb4QHMx6Jzuob4ZLJNTtvVF8hD5ebFS6kq/NTa5J4/7oaU4RTq4HSk1tO50iQ8V8v79lMyuiT8r2Uz6F6V5F1EfK6YXRcnuzKGh+NE9mHp5dJdSd82cOXvwj23gmXOFHwV+v0qwYvQPz4ZxE17iGaZhgj6UldG198kB0k9C4HNnJ2NpMYJ07x0+stR65xSi+2Fr5432dq+/sm2PjY9+aX6wqooDBjM+IkMkiEPPd4zYQqXoWM2LRU0V9kSLqprSJB7OvnOtFVz9Nqx3xh359YI6f584s6X4c=
+    secure: dZg1TGx4Fipo9+2PujsH8VIAxmiNhLM0NNNt8IxHLigGW5uauXLJ8mBf2NWSTmiEZiUkp6jl10AWWEZEfaAnRBybIKIxvmpoRE5QC3OCR08eXa0zlc63c/tBAjIpBkmqmHC4OAn0rST1VG1sJCwjjfBjK4MfRlfZMcCRvy95h3jexBftDTv9I9ga+SoCeNIt+BCo5heJ1DNWokLf/LV5rg15WHWeNacAzL1rcEP7o0JHYS2LeFPiDneM3DBayD3DuY0w94G8WHXX56kHUkJgm+KBrvSvq1zIZh175bahyY1ytAz6PkhmznA4+SF0vXdGhtFPnCUZtNS5xSJa14tC0xxWZsKPWbuVGOXP8rhe7p9zhYcKtWfdBoXVqv7cqMOmJYP5pEa+Tk+N/DjovdUJ5Yx+TDlExEuNWXhArK5QAcY0BCWJ+k2yDA45Rn9gFrM1m2n2l7FQUpwd6lMsYY1VTtCtvTt9kESo1UuTR40VM5qpJUoj7d03OGscCJ4PMlRHw30CpUl0Rg17JQybQJuu0COWXq7k3QzUE6ojySsMVzQDxRHE6yWR5GjMFgOl5rs40iy7blon9yJIcVSMQ31hNPcKzpz3x75bRcnhmSOGDLgrCFdXBYibAj8iugraLM3u6+IpQeZTq5JYs2Lfjn1LXopQuU0cR2ClHGHkMLUiv1U=
   app: student-attendance-menegement
   on:
     repo: maks-nurgazy/diploma-project
