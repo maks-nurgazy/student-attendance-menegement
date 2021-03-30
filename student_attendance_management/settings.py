@@ -87,14 +87,15 @@ WSGI_APPLICATION = 'student_attendance_management.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'attendance_management',
         'USER': 'postgres',
-        'PASSWORD': 'admin',
+        'PASSWORD': '',
         'HOST': 'localhost',
-        'PORT': '5432',
+        'PORT': '',
     }
 }
+django_heroku.settings(locals())
 
 if 'TRAVIS' in os.environ:
     DATABASES = {
