@@ -25,7 +25,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'nqew7o9-j2(#_o_8)9+l6m$93!rs$p8m*+$^g#fs%r@(ffe_@9'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get('DEBUG', False)
+DEBUG = os.environ.get('DEBUG', True)
 
 ALLOWED_HOSTS = ['*', 'https://student-attendance-menegement.herokuapp.com/',
                  'student-attendance-menegement.herokuapp.com/', ]
