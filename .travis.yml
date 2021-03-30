@@ -15,7 +15,7 @@ script:
 deploy:
   provider: heroku
   api_key:
-    secure: zuIq8RJWHP80EqqIgbxU6lLUDQVcL7xfaNxDAmzwNQfZw+tuGZJblBdDTOdF+u5X9qd2Ox7/HyE/rJxHQ0yXUlAVC34KV+/cRnukepVD2GXnxzxwWJagBqQWEEO0eMjGgvYNzDR8UuZ5cWwXZs6DI58/lFzSJXwRAcEKdFho+CyYjmUkpqXuWydq2CyLdp4luGkTIJwHHPB7u+p3PEQvwZY28zGp4zGE0EqSiU/zHkVULx7IuXe7cxVILwLXUkLsaz6LI6Ozw5ZJ0NV/umn09VA09YOD9GJvxhD80APZR4cBz2KwGlUjkOMUMSGDuPbp11NBFTqBZGO+hMEqUCNX8Q3IQ+ACGvLZ+JZsWIpCirBM29kgtSvC2y0UTaBHnt8tWg/9H3Yf8g7DkZkOJ5QqBMwJ1YdMtqcGvTFl2Op7rJe0nJlvXjBBQq+Y0heVuju3DMty1+D+44UAUVufjnFcvC4pMy4HqIReX3YCHGrMBvbHkk5O0qTqOTRiqXDJ/3cT+RXu8lM6MX1m4IIDq9z8Dlr/uoe9xVm1hLAsGDIcgXsrTQFiM+NGSmN8UGcFEMOaNVBg5bh5ON81qhYlSbUf8auAwhDfzRW5eSrcskld2LRVkOgp+DU4zzMTWGyQQ5XHC3Q6zxMQjZ0QLTweJLhMXW8+59SEWS21yD71AIwIQS0=
+    secure: 5ffcdda0-c338-478b-84c1-4376016e40bf
   app: student-attendance-menegement
   on:
     repo: maks-nurgazy/diploma-project
