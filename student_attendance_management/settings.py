@@ -27,7 +27,6 @@ SECRET_KEY = 'nqew7o9-j2(#_o_8)9+l6m$93!rs$p8m*+$^g#fs%r@(ffe_@9'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG', True)
 
-
 ALLOWED_HOSTS = ['*', 'https://student-attendance-menegement.herokuapp.com/',
                  'student-attendance-menegement.herokuapp.com/', ]
 
@@ -90,7 +89,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'attendance_management',
         'USER': 'postgres',
-        'PASSWORD': '',
+        'PASSWORD': 'admin',
         'HOST': 'localhost',
         'PORT': '',
     }
