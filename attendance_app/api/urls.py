@@ -1,7 +1,7 @@
 from django.urls import path
 
-from attendance_app.api.views import SubjectAttendanceView
+from attendance_app.api.views import CourseAttendanceView
 
 urlpatterns = [
-    path('teacher/subjects/<int:subject_id>/attendances/', SubjectAttendanceView.as_view())
+    path('teacher/courses/<int:course_id>/attendances/', CourseAttendanceView.as_view())
 ]

@@ -1,18 +1,22 @@
 from rest_framework.generics import GenericAPIView
+from rest_framework.parsers import JSONParser
 from rest_framework.response import Response
 
-from attendance_app.api.serializers import AttendanceReportSerializer, DateSerializer
+from attendance_app.api.serializers import AttendanceSerializer
 
 
-class SubjectAttendanceView(GenericAPIView):
+class CourseAttendanceView(GenericAPIView):
+    parser_classes = [JSONParser]
+    serializer_class = AttendanceSerializer
+
     def post(self, request, *args, **kwargs):
         data = self.request.data
-        reports = data['reports']
-        date = data['date']
-        date_serializer = DateSerializer(data={"date": date})
-        date_serializer.is_valid(raise_exception=True)
-        report_serializer = AttendanceReportSerializer(data=reports, many=True)
-        report_serializer.is_valid(raise_exception=True)
-        subject_id = kwargs['subject_id']
-
+        serializer = self.serializer_class(data=data, context=self.get_serializer_context())
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
         return Response({"success": True})
+
+    def get_serializer_context(self):
+        return {
+            'course_id': self.kwargs['course_id']
+        }

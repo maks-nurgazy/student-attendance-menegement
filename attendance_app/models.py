@@ -26,8 +26,5 @@ class AttendanceReport(models.Model):
     student = models.ForeignKey('users.Student', on_delete=models.CASCADE)
     status = models.BooleanField(default=False)
 
-
-
-
     def __str__(self):
         return f'{self.student.first_name} {self.student.last_name} {get_status_in_string(self.status)}'
