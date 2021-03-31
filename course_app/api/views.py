@@ -1,3 +1,5 @@
+import json
+
 from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -17,8 +19,7 @@ class StudentCourseView(ListAPIView):
     serializer_class = CourseSerializer
 
     def get_queryset(self):
-        # user = self.request.user
-        user = Student.objects.get(id=16)
+        user = self.request.user
         enrolls = user.enrolls
         courses = []
         for enroll in list(enrolls.all()):
@@ -29,19 +30,17 @@ class StudentCourseView(ListAPIView):
 class EnrollmentView(APIView):
 
     def get(self, request, *args, **kwargs):
-        # student = request.user
-        student = Student.objects.filter(email='maksnurgazy9217@test.com').first()
-        courses = Course.objects.filter(desc=student.profile.year_in_university)
+        student = request.user
+        courses = Course.objects.filter(co_class=student.profile.st_class)
         response = CourseSerializer(courses, many=True).data
         return Response(response)
 
     def post(self, request, *args, **kwargs):
-        course = request.POST.getlist('courses')
-        # student = request.user
-        student = Student.objects.filter(email='maksnurgazy9217@test.com').first()
-        for course_id in course:
+        courses = json.loads(request.body)['courses']
+        student = request.user
+        for course_id in courses:
             Enrolled.objects.create(student=student, course_id=course_id)
-        return Response({"detail": "Success"})
+        return Response({"detail": "Enrolled"})
 
     def put(self, request, *args, **kwargs):
         pass
