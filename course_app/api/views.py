@@ -1,12 +1,13 @@
 import json
 
-from rest_framework.generics import ListAPIView
+from rest_framework.generics import ListAPIView, get_object_or_404
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 
 from course_app.api.serializers import CourseSerializer
 from course_app.models import Course, Enrolled
+from users.api.serializers import StudentSerializer
 from users.models import Student
 
 
@@ -25,6 +26,24 @@ class StudentCourseView(ListAPIView):
         for enroll in list(enrolls.all()):
             courses.append(enroll.course)
         return courses
+
+
+class TeacherCourseView(ListAPIView):
+    serializer_class = CourseSerializer
+
+    def get_queryset(self):
+        teacher = self.request.user
+        return teacher.course_list
+
+
+class CourseStudentsView(ListAPIView):
+    serializer_class = StudentSerializer
+
+    def get_queryset(self):
+        course_id = self.kwargs['course_id']
+        course = get_object_or_404(Course, id=course_id)
+        students = course.students
+        return students
 
 
 class EnrollmentView(APIView):
