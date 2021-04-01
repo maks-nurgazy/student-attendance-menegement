@@ -14,11 +14,11 @@ def get_status_in_string(status):
 
 
 class Attendance(models.Model):
-    date = models.DateTimeField(default=current_time)
+    date = models.DateField(default=current_time)
     course = models.ForeignKey('course_app.Course', on_delete=models.CASCADE, related_name='attendances')
 
     def __str__(self):
-        return f'{self.course.name} {self.date.date()}'
+        return f'{self.course.name} {self.date}'
 
 
 class AttendanceReport(models.Model):

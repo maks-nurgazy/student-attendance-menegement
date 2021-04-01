@@ -9,7 +9,7 @@ from course_app.models import Course
 class AttendanceReportSerializer(serializers.ModelSerializer):
     class Meta:
         model = AttendanceReport
-        fields = ('id', 'student', 'status')
+        fields = ('student', 'status')
 
 
 class CourseIdSerializer(serializers.Serializer):
