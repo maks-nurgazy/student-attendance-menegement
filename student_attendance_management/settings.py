@@ -13,6 +13,7 @@ import os
 from datetime import timedelta
 from pathlib import Path
 
+import dj_database_url
 import django_heroku
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -27,8 +28,7 @@ SECRET_KEY = 'nqew7o9-j2(#_o_8)9+l6m$93!rs$p8m*+$^g#fs%r@(ffe_@9'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG', True)
 
-ALLOWED_HOSTS = ['*', 'https://student-attendance-menegement.herokuapp.com/',
-                 'student-attendance-menegement.herokuapp.com/', ]
+ALLOWED_HOSTS = ['0.0.0.0', 'localhost', '127.0.0.1', 'https://student-attendance-menegement.herokuapp.com/']
 
 # Application definition
 
@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    'whitenoise.runserver_nostatic',
     'django.contrib.staticfiles',
 
     'rest_framework',
@@ -95,6 +96,8 @@ DATABASES = {
     }
 }
 django_heroku.settings(locals())
+db_from_env = dj_database_url.config(conn_max_age=600)
+DATABASES['default'].update(db_from_env)
 
 if 'TRAVIS' in os.environ:
     DATABASES = {
