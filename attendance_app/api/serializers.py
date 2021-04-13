@@ -42,3 +42,13 @@ class AttendanceSerializer(serializers.Serializer):
         for report in validated_data['reports']:
             AttendanceReport.objects.create(**report, attendance=attendance)
         return attendance
+
+
+class ArduinoSerializer(serializers.Serializer):
+    id = serializers.CharField(max_length=128)
+
+    def update(self, instance, validated_data):
+        pass
+
+    def create(self, validated_data):
+        pass

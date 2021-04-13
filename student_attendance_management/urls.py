@@ -18,6 +18,8 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
 
+from attendance_app.api.views import GetFingerId
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('attendance-management/api/', include('users.api.urls')),
@@ -25,6 +27,7 @@ urlpatterns = [
     path('attendance-management/api/', include('attendance_app.api.urls')),
     path('attendance-management/api/', include('course_app.api.urls')),
     path('api-auth/', include('rest_framework.urls')),
+    path('finger/', GetFingerId.as_view())
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
