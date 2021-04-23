@@ -17,3 +17,5 @@ pytz==2021.1
 serializers==0.2.4
 sqlparse==0.4.1
 whitenoise==5.2.0
+
+channels~=3.0.3

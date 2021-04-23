@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <title>Chat Room</title>
+    <style>
+        table {
+            width: 100%;
+        }
+
+        table, th, td {
+            border: 1px solid black;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+        }
+
+        #t01 tr:nth-child(even) {
+            background-color: #eee;
+        }
+
+        #t01 tr:nth-child(odd) {
+            background-color: #fff;
+        }
+
+        #t01 th {
+            background-color: black;
+            color: white;
+        }
+
+        button {
+            padding: 10px 15px;
+            background: green;
+            color: white;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+
+<h2>Student Registering</h2>
+
+<table id="t01" style="width: 50%">
+    <tr>
+        <th>ID</th>
+        <th>Firstname</th>
+        <th>Lastname</th>
+        <th>Status</th>
+        <th>Register</th>
+    </tr>
+    <tr>
+        <td>1</td>
+        <td>Jill</td>
+        <td>Smith</td>
+        <td id="firstStatus">NOT</td>
+        <td>
+            <button id="firstBtn">Register</button>
+        </td>
+    </tr>
+    <tr>
+        <td>2</td>
+        <td>Eve</td>
+        <td>Jackson</td>
+        <td id="secondStatus">NOT</td>
+        <td>
+            <button id="secondBtn">Register</button>
+        </td>
+    </tr>
+</table>
+<br><br>
+<textarea id="chat-log" cols="100" rows="20"></textarea><br>
+<input id="chat-message-input" type="text" size="100"><br>
+<input id="chat-message-submit" type="button" value="Send">
+{{ room_name|json_script:"room-name" }}
+
+
+<script>
+    const roomName = JSON.parse(document.getElementById('room-name').textContent);
+    const firstBtn = document.getElementById("firstBtn");
+    const secondBtn = document.getElementById("secondBtn");
+    const firstStatus = document.getElementById("firstStatus");
+    const secondStatus = document.getElementById("secondStatus");
+
+    const chatSocket = new WebSocket(
+        'ws://'
+        + window.location.host
+        + '/ws/chat/'
+        + roomName
+        + '/'
+    );
+
+    chatSocket.onmessage = function (e) {
+        console.log(e.data);
+        const data = JSON.parse(e.data);
+        if (data.kind === "add") {
+            if (data.id === 1) {
+                firstStatus.innerText = "Registered";
+            }
+            if (data.id === 2) {
+                secondStatus.innerText = "Registered";
+            }
+        }
+        document.querySelector('#chat-log').value += (data.id + 'registering\n');
+    };
+
+    chatSocket.onclose = function (e) {
+        console.error('Chat socket closed unexpectedly');
+    };
+
+    document.querySelector('#chat-message-input').focus();
+    document.querySelector('#chat-message-input').onkeyup = function (e) {
+        if (e.keyCode === 13) {  // enter, return
+            document.querySelector('#chat-message-submit').click();
+        }
+    };
+
+    document.querySelector('#chat-message-submit').onclick = function (e) {
+        const messageInputDom = document.querySelector('#chat-message-input');
+        const message = messageInputDom.value;
+        chatSocket.send(JSON.stringify({
+            'kind': "reg",
+            'id': message
+        }));
+        messageInputDom.value = '';
+    };
+
+
+    firstBtn.onclick = function (e) {
+        firstStatus.innerText = "Registering...";
+
+        chatSocket.send(JSON.stringify({
+            'kind': "reg",
+            'id': 1
+        }));
+
+    };
+    secondBtn.onclick = function (e) {
+        secondStatus.innerText = "Registering...";
+        chatSocket.send(JSON.stringify({
+            'kind': "reg",
+            'id': 2
+        }));
+    }
+
+
+</script>
+
+
+</body>
+</html>

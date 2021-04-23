@@ -21,6 +21,7 @@ from django.urls import path, include
 from attendance_app.api.views import GetFingerId
 
 urlpatterns = [
+    path('chat/', include('attendance_app.urls')),
     path('admin/', admin.site.urls),
     path('attendance-management/api/', include('users.api.urls')),
     path('attendance-management/api/', include('university_app.api.urls')),
