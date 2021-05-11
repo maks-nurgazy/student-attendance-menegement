@@ -135,3 +135,4 @@ users/migrations/
 university_app/migrations/
 course_app/migrations/
 attendance_app/migrations/
+student_attendance_management/settings/settings_local.py
