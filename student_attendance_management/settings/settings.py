@@ -6,8 +6,6 @@ import django
 import dj_database_url
 import django_heroku
 
-django.setup()
-
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 SECRET_KEY = os.environ.get("SECRET_KEY")
