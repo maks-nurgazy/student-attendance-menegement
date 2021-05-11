@@ -98,7 +98,6 @@ USE_L10N = True
 
 USE_TZ = True
 
-
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 STATIC_URL = '/static/'
@@ -158,8 +157,8 @@ CHANNEL_LAYERS = {
 }
 
 django_heroku.settings(locals())
-db_from_env = dj_database_url.config(conn_max_age=500)
-DATABASES['default'].update(db_from_env)
+prod_db = dj_database_url.config(conn_max_age=500)
+DATABASES['default'].update(prod_db)
 
 try:
     from student_attendance_management.settings.settings_local import *
