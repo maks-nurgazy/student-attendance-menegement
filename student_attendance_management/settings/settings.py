@@ -106,7 +106,7 @@ STATICFILES_DIRS = [
     BASE_DIR / "static"
 ]
 
-STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
+STATICFILES_STORAGE = 'student_attendance_management.storage.WhiteNoiseStaticFilesStorage'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'

@@ -1,12 +1,9 @@
-from django.conf import settings
 from django.contrib.auth import authenticate
-from django.shortcuts import get_object_or_404
+from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import serializers
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from rest_framework_simplejwt.tokens import RefreshToken
-
-from university_app.models import Department, Class
 from users.models import User, Teacher, Student
+from university_app.models import Department, Class
+from rest_framework_simplejwt.tokens import RefreshToken
 
 
 class DepartmentRelatedField(serializers.RelatedField):
@@ -117,7 +114,7 @@ class UserLoginSerializer(serializers.Serializer):
             raise serializers.ValidationError("Invalid login credentials")
 
         try:
-            refresh = RefreshToken.for_user(user)
+            refresh = RefreshToken.for_user(user=user)
             refresh_token = str(refresh)
             access_token = str(refresh.access_token)
             validation = {
@@ -127,5 +124,5 @@ class UserLoginSerializer(serializers.Serializer):
                 'role': user.roles.first(),
             }
             return validation
-        except settings.AUTH_USER_MODEL.DoesNotExist:
+        except ObjectDoesNotExist:
             raise serializers.ValidationError("Invalid login credentials")

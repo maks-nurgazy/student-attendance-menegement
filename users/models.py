@@ -1,8 +1,6 @@
 from PIL import Image
 from django.contrib.auth.base_user import AbstractBaseUser
 from django.contrib.auth.models import PermissionsMixin
-from django.core.exceptions import ValidationError
-from django.utils.translation import gettext_lazy as _
 from django.db import models
 
 from users.managers import TeacherManager, StudentManager, AdminManager
@@ -70,7 +68,7 @@ def profile_img_dir(instance, filename):
 
 
 class StudentProfile(models.Model):
-    user = models.OneToOneField(Student, on_delete=models.CASCADE, related_name='profile')
+    user = models.OneToOneField(Student, on_delete=models.CASCADE, related_name='student_profile')
     gender = models.CharField(max_length=1, choices=(('M', 'Male'), ('F', 'Female')), default='G')
     father = models.CharField(max_length=30, default='non')
     mother = models.CharField(max_length=30, default='non')
@@ -79,12 +77,29 @@ class StudentProfile(models.Model):
 
     def save(self, *args, **kwargs):
         super(StudentProfile, self).save(*args, **kwargs)
-        img = Image.open(self.image.path)
-
-        if img.height > 300 or img.width > 300:
-            size = (300, 300)
-            img.thumbnail(size)
-            img.save(self.image.path)
+        save_image(self)
 
     def __str__(self):
         return f'{self.user.full_name}-profile'
+
+
+class TeacherProfile(models.Model):
+    user = models.OneToOneField(Student, on_delete=models.CASCADE, related_name='teacher_profile')
+    image = models.ImageField(upload_to=profile_img_dir, default='profile/default.png')
+    department = models.ForeignKey('university_app.Department', on_delete=models.SET_NULL, null=True)
+
+    def save(self, *args, **kwargs):
+        super(TeacherProfile, self).save(*args, **kwargs)
+        save_image(self)
+
+    def __str__(self):
+        return f'{self.user.full_name}-profile'
+
+
+def save_image(self):
+    img = Image.open(self.image.path)
+
+    if img.height > 300 or img.width > 300:
+        size = (300, 300)
+        img.thumbnail(size)
+        img.save(self.image.path)
