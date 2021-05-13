@@ -8,7 +8,7 @@ import django_heroku
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
-SECRET_KEY = os.environ.get("SECRET_KEY")
+SECRET_KEY = os.environ.get("SECRET_KEY", 'supersecret')
 
 DEBUG = False
 
@@ -172,5 +172,5 @@ DATABASES['default'].update(prod_db)
 
 try:
     from student_attendance_management.settings.settings_local import *
-except:
-    pass
+except Exception as e:
+    print(e)
