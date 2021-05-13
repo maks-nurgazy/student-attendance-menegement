@@ -10,7 +10,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 SECRET_KEY = os.environ.get("SECRET_KEY", 'supersecret')
 
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'https://student-attendance-menegement.herokuapp.com/']
 
@@ -173,4 +173,4 @@ DATABASES['default'].update(prod_db)
 try:
     from student_attendance_management.settings.settings_local import *
 except Exception as e:
-    print(e)
+    pass
