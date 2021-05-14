@@ -3,7 +3,7 @@ from django.contrib.auth.base_user import AbstractBaseUser
 from django.contrib.auth.models import PermissionsMixin
 from django.db import models
 
-from users.managers import TeacherManager, StudentManager, AdminManager
+from users.managers import TeacherManager, StudentManager, AdminManager, AdvisorManager
 
 
 class Role(models.Model):
@@ -56,6 +56,13 @@ class Teacher(User):
         proxy = True
 
 
+class Advisor(User):
+    objects = AdvisorManager()
+
+    class Meta:
+        proxy = True
+
+
 class Student(User):
     objects = StudentManager()
 
@@ -84,12 +91,25 @@ class StudentProfile(models.Model):
 
 
 class TeacherProfile(models.Model):
-    user = models.OneToOneField(Student, on_delete=models.CASCADE, related_name='teacher_profile')
+    user = models.OneToOneField(Teacher, on_delete=models.CASCADE, related_name='teacher_profile')
     image = models.ImageField(upload_to=profile_img_dir, default='profile/default.png')
     department = models.ForeignKey('university_app.Department', on_delete=models.SET_NULL, null=True)
 
     def save(self, *args, **kwargs):
         super(TeacherProfile, self).save(*args, **kwargs)
+        save_image(self)
+
+    def __str__(self):
+        return f'{self.user.full_name}-profile'
+
+
+class AdvisorProfile(models.Model):
+    user = models.OneToOneField(Advisor, on_delete=models.CASCADE, related_name='advisor_profile')
+    image = models.ImageField(upload_to=profile_img_dir, default='profile/default.png')
+    co_class = models.ForeignKey('university_app.Class', on_delete=models.SET_NULL, null=True)
+
+    def save(self, *args, **kwargs):
+        super(AdvisorProfile, self).save(*args, **kwargs)
         save_image(self)
 
     def __str__(self):

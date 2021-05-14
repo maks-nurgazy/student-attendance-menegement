@@ -1,7 +1,8 @@
 from django.contrib.auth.base_user import BaseUserManager
-from django.db import models
 from django.db.models import Manager
 from django.utils.translation import ugettext_lazy as _
+
+import users.models
 
 
 class AdminManager(BaseUserManager):
@@ -32,22 +33,40 @@ class AdminManager(BaseUserManager):
         extra_fields.setdefault('is_staff', False)
         student = self.create_user(email, password, **extra_fields)
         student.roles.add(4)
-
+        users.models.StudentProfile.objects.create(user=student)
         return student
 
     def create_teacher(self, email, password, **extra_fields):
         extra_fields.setdefault('is_active', True)
         extra_fields.setdefault('is_staff', True)
+        department = extra_fields.pop("department")
         teacher = self.create_user(email, password, **extra_fields)
         teacher.roles.add(3)
-
+        users.models.TeacherProfile.objects.create(user=teacher, department=department)
         return teacher
+
+    def create_advisor(self, email, password, **extra_fields):
+        extra_fields.setdefault('is_active', True)
+        extra_fields.setdefault('is_staff', True)
+        co_class = extra_fields.pop("co_class")
+        advisor, created = users.models.User.objects.get_or_create(email=email, **extra_fields)
+        if created:
+            advisor.set_password(password)
+            advisor.save(using=self._db)
+        advisor.roles.add(2)
+        users.models.AdvisorProfile.objects.get_or_create(user=advisor, co_class=co_class)
+        return advisor
 
 
 class TeacherManager(Manager):
 
     def get_queryset(self, *args, **kwargs):
         return super().get_queryset(*args, **kwargs).filter(roles__in=[3])
+
+
+class AdvisorManager(Manager):
+    def get_queryset(self, *args, **kwargs):
+        return super().get_queryset(*args, **kwargs).filter(roles__in=[2])
 
 
 class StudentManager(Manager):

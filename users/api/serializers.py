@@ -1,7 +1,7 @@
 from django.contrib.auth import authenticate
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import serializers
-from users.models import User, Teacher, Student
+from users.models import User, Teacher, Student, Advisor
 from university_app.models import Department, Class
 from rest_framework_simplejwt.tokens import RefreshToken
 
@@ -61,7 +61,7 @@ class StudentSerializer(serializers.ModelSerializer):
         st_class = validated_data.pop('st_class')
         user = User.objects.create_student(**validated_data)
         st_class = Class.objects.get(num=st_class.id, department=department)
-        profile = user.profile
+        profile = user.student_profile
         profile.st_class = st_class
         profile.save()
         return user
@@ -69,10 +69,11 @@ class StudentSerializer(serializers.ModelSerializer):
 
 class TeacherSerializer(serializers.ModelSerializer):
     password = serializers.CharField(max_length=128, write_only=True)
+    department = DepartmentRelatedField(queryset=Department.objects.all(), write_only=True)
 
     class Meta:
         model = Teacher
-        fields = ('id', 'first_name', 'last_name', 'email', 'password')
+        fields = ('id', 'first_name', 'last_name', 'email', 'password', 'department')
 
     def get_fields(self, *args, **kwargs):
         fields = super(TeacherSerializer, self).get_fields(*args, **kwargs)
@@ -85,11 +86,49 @@ class TeacherSerializer(serializers.ModelSerializer):
         instance.email = validated_data.get('email', instance.email)
         instance.first_name = validated_data.get('first_name', instance.first_name)
         instance.last_name = validated_data.get('last_name', instance.last_name)
+        instance.teacher_profile.department = validated_data.get('department', instance.teacher_profile.department)
         instance.save()
         return instance
 
     def create(self, validated_data):
         return User.objects.create_teacher(**validated_data)
+
+
+class AdvisorSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(max_length=128, write_only=True)
+    email = serializers.EmailField(max_length=128)
+    co_class = ClassRelatedField(queryset=Class.objects.all(), write_only=True)
+    meta = serializers.SerializerMethodField(read_only=True)
+
+    class Meta:
+        model = Advisor
+        fields = ('id', 'first_name', 'last_name', 'email', 'password', "co_class", "meta")
+
+    def get_fields(self, *args, **kwargs):
+        fields = super(AdvisorSerializer, self).get_fields(*args, **kwargs)
+        request = self.context.get('request', None)
+        if request and getattr(request, 'method', None) == "PUT":
+            fields.pop('password')
+        return fields
+
+    def update(self, instance, validated_data):
+        instance.email = validated_data.get('email', instance.email)
+        instance.first_name = validated_data.get('first_name', instance.first_name)
+        instance.last_name = validated_data.get('last_name', instance.last_name)
+        instance.advisor_profile.co_class = validated_data.get('co_class', instance.advisor_profile.co_class)
+        instance.save()
+        return instance
+
+    def create(self, validated_data):
+        return User.objects.create_advisor(**validated_data)
+
+    def get_meta(self, obj):
+        co_class = obj.advisor_profile.co_class
+        data = {
+            "department": co_class.department.name,
+            "class": co_class.num
+        }
+        return data
 
 
 class UserLoginSerializer(serializers.Serializer):

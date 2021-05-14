@@ -4,8 +4,8 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
-from users.api.serializers import StudentSerializer, TeacherSerializer, UserLoginSerializer
-from users.models import Student, Teacher
+from users.api.serializers import StudentSerializer, TeacherSerializer, UserLoginSerializer, AdvisorSerializer
+from users.models import Student, Teacher, Advisor
 
 
 class StudentViewSet(ModelViewSet):
@@ -16,6 +16,11 @@ class StudentViewSet(ModelViewSet):
 class TeacherViewSet(ModelViewSet):
     queryset = Teacher.objects.all()
     serializer_class = TeacherSerializer
+
+
+class AdvisorViewSet(ModelViewSet):
+    queryset = Advisor.objects.all()
+    serializer_class = AdvisorSerializer
 
 
 class UserLoginView(GenericAPIView):

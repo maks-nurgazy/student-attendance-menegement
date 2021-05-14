@@ -8,7 +8,6 @@ from rest_framework.viewsets import ModelViewSet
 from course_app.api.serializers import CourseSerializer
 from course_app.models import Course, Enrolled
 from users.api.serializers import StudentSerializer
-from users.models import Student
 
 
 class CourseViewSet(ModelViewSet):
