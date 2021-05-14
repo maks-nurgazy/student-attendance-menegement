@@ -7,6 +7,7 @@ from rest_framework.viewsets import ModelViewSet
 
 from course_app.api.serializers import CourseSerializer
 from course_app.models import Course, Enrolled
+from student_attendance_management.permissions import StudentsOnly
 from users.api.serializers import StudentSerializer
 
 
@@ -16,6 +17,7 @@ class CourseViewSet(ModelViewSet):
 
 
 class StudentCourseView(ListAPIView):
+    permission_classes = (StudentsOnly,)
     serializer_class = CourseSerializer
 
     def get_queryset(self):
@@ -46,10 +48,11 @@ class CourseStudentsView(ListAPIView):
 
 
 class EnrollmentView(APIView):
+    permission_classes = (StudentsOnly,)
 
     def get(self, request, *args, **kwargs):
         student = request.user
-        courses = Course.objects.filter(co_class=student.profile.st_class)
+        courses = Course.objects.filter(co_class=student.student_profile.st_class)
         response = CourseSerializer(courses, many=True).data
         return Response(response)
 
