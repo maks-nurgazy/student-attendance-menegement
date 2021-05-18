@@ -1,14 +1,14 @@
 import json
 
-from rest_framework.exceptions import ValidationError
 from rest_framework.generics import ListAPIView, get_object_or_404
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 
-from course_app.api.serializers import CourseSerializer, EnrollmentSerializer, CourseRelatedField
+from course_app.api.serializers import CourseSerializer, EnrollmentSerializer, CourseRelatedField, \
+    TeacherCourseValidSerializer
 from course_app.models import Course, Enrolled, CourseApprove
-from student_attendance_management.permissions import StudentsOnly, SupervisorsOnly
+from student_attendance_management.permissions import StudentsOnly, SupervisorsOnly, TeachersOnly
 from users.api.serializers import StudentSerializer, ValidApproveStudentSerializer
 
 
@@ -49,10 +49,13 @@ class TeacherCourseView(ListAPIView):
 
 class CourseStudentsView(ListAPIView):
     serializer_class = StudentSerializer
+    permission_classes = (TeachersOnly,)
 
     def get_queryset(self):
         course_id = self.kwargs['course_id']
-        course = get_object_or_404(Course, id=course_id)
+        serializer = TeacherCourseValidSerializer(data={"course": course_id}, context={"teacher": self.request.user})
+        serializer.is_valid(raise_exception=True)
+        course = serializer.validated_data['course']
         students = course.students
         return students
 

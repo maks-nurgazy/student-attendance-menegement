@@ -18,9 +18,14 @@ class CourseRelatedField(serializers.RelatedField):
 
 
 class CourseSerializer(serializers.ModelSerializer):
+    teacher = serializers.SerializerMethodField()
+
     class Meta:
         model = Course
         fields = ('id', 'name', 'credit', 'co_class', 'teacher',)
+
+    def get_teacher(self, obj):
+        return obj.teacher.full_name
 
 
 class CourseRelatedSerializer(serializers.Serializer):
@@ -58,3 +63,17 @@ class EnrollmentSerializer(serializers.Serializer):
 
     def get_co_class(self):
         return self.context['student'].student_profile.st_class
+
+
+class TeacherCourseValidSerializer(serializers.Serializer):
+
+    def __init__(self, *args, **kwargs):
+        super(TeacherCourseValidSerializer, self).__init__(*args, **kwargs)
+        queryset = Course.objects.filter(teacher=self.context['teacher'])
+        self.fields['course'] = CourseRelatedField(queryset=queryset)
+
+    def update(self, instance, validated_data):
+        pass
+
+    def create(self, validated_data):
+        pass

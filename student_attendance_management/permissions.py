@@ -32,3 +32,14 @@ class SupervisorsOnly(permissions.BasePermission):
         if role in user.roles.all():
             return True
         return False
+
+
+class TeachersOnly(permissions.BasePermission):
+    message = 'This endpoint for TEACHERS only.'
+
+    def has_permission(self, request, view):
+        user = request.user
+        role = Role.objects.get(id=Role.TEACHER)
+        if role in user.roles.all():
+            return True
+        return False
