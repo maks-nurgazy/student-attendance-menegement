@@ -4,7 +4,7 @@ from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 
 from university_app.api.serializers import DepartmentSerializer, FacultySerializer, UniversitySerializer, \
-    ClassSerializer
+    ClassSerializer, DepartmentRelatedSerializer
 from university_app.models import University, Department, Faculty, Class
 
 
@@ -63,6 +63,8 @@ class ClassViewSet(ModelViewSet):
 
     def get_queryset(self):
         department_id = self.kwargs['department_id']
+        serializer = DepartmentRelatedSerializer(data={"department": department_id})
+        serializer.is_valid(raise_exception=True)
         return Class.objects.filter(department_id=department_id)
 
     def get_serializer_context(self):

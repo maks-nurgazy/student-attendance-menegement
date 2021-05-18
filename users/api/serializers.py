@@ -1,7 +1,10 @@
 from django.contrib.auth import authenticate
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import serializers
-from users.models import User, Teacher, Student, Advisor
+from rest_framework.exceptions import ValidationError
+
+from course_app.models import Course, Enrolled
+from users.models import User, Teacher, Student, Advisor, StudentProfile
 from university_app.models import Department, Class
 from rest_framework_simplejwt.tokens import RefreshToken
 
@@ -13,7 +16,7 @@ class DepartmentRelatedField(serializers.RelatedField):
         try:
             department = Department.objects.get(id=department_id)
         except Department.DoesNotExist:
-            raise serializers.ValidationError('Department with this id does not exist')
+            raise serializers.ValidationError('This Department does not exist')
         return department
 
     def to_representation(self, instance):
@@ -37,10 +40,28 @@ class StudentSerializer(serializers.ModelSerializer):
     password = serializers.CharField(max_length=128, write_only=True)
     department = DepartmentRelatedField(queryset=Department.objects.all(), write_only=True)
     st_class = ClassRelatedField(queryset=Class.objects.all(), write_only=True)
+    info = serializers.SerializerMethodField()
 
     class Meta:
         model = Student
-        fields = ('id', 'first_name', 'last_name', 'email', 'password', 'department', 'st_class')
+        fields = ('id', 'first_name', 'last_name', 'email', 'password', 'department', 'st_class', 'info')
+
+    def validate(self, attrs):
+        st_class = attrs['st_class']
+        department = attrs['department']
+        try:
+            Class.objects.get(num=st_class.id, department=department)
+        except ObjectDoesNotExist:
+            raise ValidationError(f'Class {st_class.num} does not exists in this department')
+        return attrs
+
+    def get_info(self, obj):
+        profile = obj.student_profile
+        data = {
+            "class": profile.st_class.num,
+            "department": profile.st_class.department.name
+        }
+        return data
 
     def get_fields(self, *args, **kwargs):
         fields = super(StudentSerializer, self).get_fields(*args, **kwargs)
@@ -165,3 +186,93 @@ class UserLoginSerializer(serializers.Serializer):
             return validation
         except ObjectDoesNotExist:
             raise serializers.ValidationError("Invalid login credentials")
+
+
+class AdvisorStudentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('id', 'first_name', 'last_name', 'email')
+
+
+class StudentRelatedField(serializers.RelatedField):
+    def to_internal_value(self, data):
+        try:
+            student = self.queryset.get(id=data)
+        except Student.DoesNotExist:
+            raise serializers.ValidationError('Student with this id does not exist')
+        return student
+
+    def to_representation(self, instance):
+        return "hello"
+
+
+class ValidApproveStudentSerializer(serializers.Serializer):
+    def update(self, instance, validated_data):
+        pass
+
+    def create(self, validated_data):
+        pass
+
+    def __init__(self, *args, **kwargs):
+        super(ValidApproveStudentSerializer, self).__init__(*args, **kwargs)
+        user = self.context['advisor']
+        profile = user.advisor_profile
+        co_class = profile.co_class
+        prof_students = co_class.students
+        queryset = Student.objects.filter(student_profile__in=prof_students.all())
+        self.fields['student'] = StudentRelatedField(queryset=queryset)
+
+
+class StudentCourseSerializer(serializers.ModelSerializer):
+    teacher = serializers.SerializerMethodField()
+    class_number = serializers.SerializerMethodField("get_class")
+
+    class Meta:
+        model = Course
+        fields = ('name', 'teacher', 'credit', 'class_number',)
+
+    def get_teacher(self, obj):
+        teacher = obj.teacher
+        return teacher.full_name
+
+    def get_class(self, obj):
+        return obj.co_class.num
+
+
+class StudentProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = StudentProfile
+        fields = ('gender', 'father', 'mother', 'image')
+
+
+class AdvisorStudentDetailSerializer(serializers.ModelSerializer):
+    course = serializers.SerializerMethodField()
+    profile = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = ('id', 'first_name', 'last_name', 'profile', 'course')
+
+    def get_course(self, obj):
+        try:
+            enrolled = Enrolled.objects.filter(student=obj)
+            courses = []
+            total_credit = 0
+            for enroll in enrolled:
+                course = enroll.course
+                courses.append(course)
+                total_credit += course.credit
+            data = StudentCourseSerializer(courses, many=True).data
+            data = {
+                "total_credit": total_credit,
+                "total_subject": len(courses),
+                "course_data": data
+            }
+            return data
+        except Exception as e:
+            raise ValidationError({'message': e})
+
+    def get_profile(self, obj):
+        profile = obj.student_profile
+        data = StudentProfileSerializer(profile).data
+        return data

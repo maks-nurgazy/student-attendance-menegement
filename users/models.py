@@ -80,7 +80,7 @@ class StudentProfile(models.Model):
     father = models.CharField(max_length=30, default='non')
     mother = models.CharField(max_length=30, default='non')
     image = models.ImageField(upload_to=profile_img_dir, default='profile/default.png')
-    st_class = models.ForeignKey('university_app.Class', on_delete=models.SET_NULL, null=True)
+    st_class = models.ForeignKey('university_app.Class', on_delete=models.SET_NULL, null=True, related_name="students")
 
     def save(self, *args, **kwargs):
         super(StudentProfile, self).save(*args, **kwargs)

@@ -25,11 +25,11 @@ class Department(models.Model):
 
 
 class Class(models.Model):
-    num = models.PositiveSmallIntegerField(unique=True)
+    num = models.PositiveSmallIntegerField()
     department = models.ForeignKey(Department, on_delete=models.CASCADE, related_name='classes')
 
     class Meta:
-        unique_together = ['num', 'department']
+        unique_together = [['num', 'department']]
 
     def __str__(self):
         return f'{self.num} course'

@@ -1,7 +1,11 @@
+from django.core.exceptions import ObjectDoesNotExist
+from django.db import IntegrityError
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
 
 from university_app.exceptions import NotFoundException
 from university_app.models import University, Department, Faculty, Class
+from users.api.serializers import DepartmentRelatedField
 
 
 class UniversitySerializer(serializers.ModelSerializer):
@@ -29,6 +33,16 @@ class DepartmentSerializer(serializers.ModelSerializer):
         return instance
 
 
+class DepartmentRelatedSerializer(serializers.Serializer):
+    department = DepartmentRelatedField(queryset=Department.objects.all(), write_only=True)
+
+    def update(self, instance, validated_data):
+        pass
+
+    def create(self, validated_data):
+        pass
+
+
 class ClassSerializer(serializers.ModelSerializer):
     class Meta:
         model = Class
@@ -36,9 +50,16 @@ class ClassSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         department_id = self.context['department_id']
-        department = Department.objects.get(id=department_id)
+        try:
+            department = Department.objects.get(id=department_id)
+        except ObjectDoesNotExist:
+            raise ValidationError("This department does not exist")
         if department:
-            return Class.objects.create(**validated_data, department=department)
+            try:
+                Class.objects.create(**validated_data, department=department)
+            except IntegrityError:
+                raise ValidationError("This class already exists")
+            return
         else:
             raise NotFoundException()
 

@@ -1,11 +1,15 @@
+from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import status
-from rest_framework.generics import GenericAPIView
+from rest_framework.exceptions import ValidationError
+from rest_framework.generics import GenericAPIView, ListAPIView, RetrieveAPIView
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
-from users.api.serializers import StudentSerializer, TeacherSerializer, UserLoginSerializer, AdvisorSerializer
-from users.models import Student, Teacher, Advisor
+from student_attendance_management.permissions import SupervisorsOnly
+from users.api.serializers import StudentSerializer, TeacherSerializer, UserLoginSerializer, AdvisorSerializer, \
+    AdvisorStudentSerializer, AdvisorStudentDetailSerializer
+from users.models import Student, Teacher, Advisor, User
 
 
 class StudentViewSet(ModelViewSet):
@@ -45,3 +49,44 @@ class UserLoginView(GenericAPIView):
                 }
             }
             return Response(response, status=status_code)
+
+
+class AdvisorStudentsView(ListAPIView):
+    permission_classes = (SupervisorsOnly,)
+    serializer_class = AdvisorStudentSerializer
+
+    def get_queryset(self):
+        user = self.request.user
+        profile = user.advisor_profile
+        co_class = profile.co_class
+        prof_students = co_class.students
+        queryset = []
+        for prof in prof_students.all():
+            queryset.append(prof.user)
+        return queryset
+
+
+class AdvisorStudentsDetailView(RetrieveAPIView):
+    permission_classes = (SupervisorsOnly,)
+    serializer_class = AdvisorStudentDetailSerializer
+
+    def get_serializer_context(self):
+        context = super(AdvisorStudentsDetailView, self).get_serializer_context()
+        context['advisor'] = self.request.user
+        return context
+
+    def get_queryset(self):
+        user = self.request.user
+        profile = user.advisor_profile
+        co_class = profile.co_class
+        prof_students = co_class.students
+        users = Student.objects.filter(student_profile__in=prof_students.all())
+        return users
+
+    def get_object(self):
+        id = self.kwargs['id']
+        try:
+            obj = self.get_queryset().get(id=id)
+            return obj
+        except ObjectDoesNotExist:
+            raise ValidationError("Does not exist")

@@ -1,14 +1,15 @@
 import json
 
+from rest_framework.exceptions import ValidationError
 from rest_framework.generics import ListAPIView, get_object_or_404
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 
-from course_app.api.serializers import CourseSerializer
-from course_app.models import Course, Enrolled
-from student_attendance_management.permissions import StudentsOnly
-from users.api.serializers import StudentSerializer
+from course_app.api.serializers import CourseSerializer, EnrollmentSerializer, CourseRelatedField
+from course_app.models import Course, Enrolled, CourseApprove
+from student_attendance_management.permissions import StudentsOnly, SupervisorsOnly
+from users.api.serializers import StudentSerializer, ValidApproveStudentSerializer
 
 
 class CourseViewSet(ModelViewSet):
@@ -27,6 +28,15 @@ class StudentCourseView(ListAPIView):
         for enroll in list(enrolls.all()):
             courses.append(enroll.course)
         return courses
+
+    def get(self, request, *args, **kwargs):
+        student = request.user
+        course_approve = CourseApprove.objects.get(student=student)
+        data = {
+            "approved": course_approve.status,
+            "courses": CourseSerializer(self.get_queryset(), many=True).data
+        }
+        return Response(data=data)
 
 
 class TeacherCourseView(ListAPIView):
@@ -59,9 +69,52 @@ class EnrollmentView(APIView):
     def post(self, request, *args, **kwargs):
         courses = json.loads(request.body)['courses']
         student = request.user
-        for course_id in courses:
-            Enrolled.objects.create(student=student, course_id=course_id)
-        return Response({"detail": "Enrolled"})
+        data = {
+            "courses": courses
+        }
+        serializer = EnrollmentSerializer(data=data, context={"student": student})
+        serializer.is_valid(raise_exception=True)
+        data = serializer.save()
+        return Response(data=data)
 
     def put(self, request, *args, **kwargs):
-        pass
+        response = self.delete(request, *args, **kwargs)
+        data = response.data
+        if "message" in data:
+            return Response(data={"update": False, "message": data['message']})
+        return self.post(request, *args, **kwargs)
+
+    def delete(self, request, *args, **kwargs):
+        student = request.user
+        course_approve = CourseApprove.objects.get(student=student)
+        if course_approve.status:
+            return Response(data={"deleted": False, "message": "Enroll time finished"})
+        else:
+            Enrolled.objects.filter(student=student).delete()
+            course_approve.delete()
+            return Response(data={"deleted": True})
+
+
+class AdviserCourseApproveView(APIView):
+    permission_classes = (SupervisorsOnly,)
+
+    def post(self, request, *args, **kwargs):
+        id = kwargs['id']
+        advisor = request.user
+        serializer = ValidApproveStudentSerializer(data={"student": id}, context={"advisor": advisor})
+
+        serializer.is_valid(raise_exception=True)
+        student = serializer.validated_data['student']
+        course_approve, created = CourseApprove.objects.get_or_create(student=student)
+        course_approve.status = True
+        course_approve.save()
+        enrolled = Enrolled.objects.filter(student=student)
+        for enroll in enrolled:
+            course = enroll.course
+            if student not in course.students.all():
+                course.students.add(student)
+        data = {
+            "status": True,
+            "is_approved": course_approve.status
+        }
+        return Response(data=data)
