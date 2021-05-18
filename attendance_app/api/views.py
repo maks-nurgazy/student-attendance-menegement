@@ -1,21 +1,23 @@
-from rest_framework.generics import GenericAPIView
+from rest_framework.generics import GenericAPIView, get_object_or_404
 from rest_framework.parsers import JSONParser
 from rest_framework.response import Response
 
-from attendance_app.api.serializers import AttendanceSerializer, ArduinoSerializer
+from attendance_app.api.serializers import AttendanceSerializer
 from attendance_app.models import Attendance
-from student_attendance_management.permissions import TeachersOnly
+from course_app.models import Course
+from student_attendance_management.permissions import IsAttendanceOwner
 
 
 class CourseAttendanceView(GenericAPIView):
     parser_classes = [JSONParser]
     serializer_class = AttendanceSerializer
-    permission_classes = (TeachersOnly,)
+    permission_classes = (IsAttendanceOwner,)
 
     def get_queryset(self):
         course_id = self.kwargs['course_id']
-        # todo check course_id exists and belongs current user
         attendance = Attendance.objects.filter(course_id=course_id)
+        obj = get_object_or_404(Course.objects.all(), pk=self.kwargs["course_id"])
+        self.check_object_permissions(self.request, obj)
         date_str = self.request.GET.get('date')
         if date_str:
             date = date_str.split('-')
@@ -29,7 +31,7 @@ class CourseAttendanceView(GenericAPIView):
         return attendance
 
     def get(self, request, *args, **kwargs):
-        data = self.serializer_class(self.get_queryset(), many=True).data
+        data = self.serializer_class(self.get_queryset(), context=self.get_serializer_context(), many=True).data
         return Response(data)
 
     def post(self, request, *args, **kwargs):
@@ -41,5 +43,6 @@ class CourseAttendanceView(GenericAPIView):
 
     def get_serializer_context(self):
         return {
-            'course_id': self.kwargs['course_id']
+            'request': self.request,
+            'kwargs': self.kwargs
         }

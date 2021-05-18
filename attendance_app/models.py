@@ -20,6 +20,9 @@ class Attendance(models.Model):
     def __str__(self):
         return f'{self.course.name} {self.date}'
 
+    class Meta:
+        unique_together = ['date', 'course']
+
 
 class AttendanceReport(models.Model):
     attendance = models.ForeignKey('Attendance', on_delete=models.CASCADE, related_name='reports')
@@ -28,3 +31,6 @@ class AttendanceReport(models.Model):
 
     def __str__(self):
         return f'{self.student.first_name} {self.student.last_name} {get_status_in_string(self.status)}'
+
+    class Meta:
+        unique_together = ['attendance', 'student']
