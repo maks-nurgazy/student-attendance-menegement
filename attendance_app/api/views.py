@@ -1,19 +1,16 @@
-from datetime import datetime
-
-from django.utils.dateparse import parse_date
-from rest_framework.generics import GenericAPIView, get_object_or_404
+from rest_framework.generics import GenericAPIView
 from rest_framework.parsers import JSONParser
-from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
 from attendance_app.api.serializers import AttendanceSerializer, ArduinoSerializer
 from attendance_app.models import Attendance
-from course_app.models import Course
+from student_attendance_management.permissions import TeachersOnly
 
 
 class CourseAttendanceView(GenericAPIView):
     parser_classes = [JSONParser]
     serializer_class = AttendanceSerializer
+    permission_classes = (TeachersOnly,)
 
     def get_queryset(self):
         course_id = self.kwargs['course_id']
@@ -46,17 +43,3 @@ class CourseAttendanceView(GenericAPIView):
         return {
             'course_id': self.kwargs['course_id']
         }
-
-
-class GetFingerId(GenericAPIView):
-    serializer_class = ArduinoSerializer
-    permission_classes = [AllowAny, ]
-
-    def get(self, request, *args, **kwargs):
-        return Response({
-            'id': 10
-        })
-
-    def post(self, request, *args, **kwargs):
-        print(request.POST)
-        return Response({'hello': 'world'})

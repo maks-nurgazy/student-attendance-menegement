@@ -31,12 +31,19 @@ class StudentCourseView(ListAPIView):
 
     def get(self, request, *args, **kwargs):
         student = request.user
-        course_approve = CourseApprove.objects.get(student=student)
-        data = {
-            "approved": course_approve.status,
-            "courses": CourseSerializer(self.get_queryset(), many=True).data
-        }
-        return Response(data=data)
+        try:
+            course_approve = CourseApprove.objects.get(student=student)
+            data = {
+                "approved": course_approve.status,
+                "courses": CourseSerializer(self.get_queryset(), many=True).data
+            }
+            return Response(data=data)
+        except CourseApprove.DoesNotExist:
+            data = {
+                "approved": False,
+                "message": "Courses not approved yet!"
+            }
+            return Response(data=data)
 
 
 class TeacherCourseView(ListAPIView):

@@ -53,7 +53,7 @@ class EnrollmentSerializer(serializers.Serializer):
         student = self.context['student']
         approve, created = CourseApprove.objects.get_or_create(student=student)
         res = {
-            "status": "Verified" if approve.status else "Not verified",
+            "status": "Verified" if approve.status else "Not approved",
             "courses": [],
         }
         for course in courses:
