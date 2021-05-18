@@ -89,21 +89,27 @@ class AttendanceSerializer(serializers.Serializer):
         attendance, created = Attendance.objects.get_or_create(date=date, course=course)
         if created:
             for report in validated_data['reports']:
-                print(report)
                 AttendanceReport.objects.get_or_create(student=report['student_id'], status=report['status'],
                                                        attendance=attendance)
+
+            data = {
+                "date": attendance.date,
+                "course": attendance.course.name,
+                "created": created
+            }
+            return data
         else:
             message = {
                 'message': f'{course.name} attendance for date: {date} already taken'
             }
             raise ValidationError(message)
-        return attendance
 
-    class ArduinoSerializer(serializers.Serializer):
-        id = serializers.CharField(max_length=128)
 
-        def update(self, instance, validated_data):
-            pass
+class ArduinoSerializer(serializers.Serializer):
+    id = serializers.CharField(max_length=128)
 
-        def create(self, validated_data):
-            pass
+    def update(self, instance, validated_data):
+        pass
+
+    def create(self, validated_data):
+        pass

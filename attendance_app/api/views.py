@@ -38,8 +38,8 @@ class CourseAttendanceView(GenericAPIView):
         data = self.request.data
         serializer = self.serializer_class(data=data, context=self.get_serializer_context())
         serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response({"success": True})
+        data = serializer.save()
+        return Response(data=data)
 
     def get_serializer_context(self):
         return {
