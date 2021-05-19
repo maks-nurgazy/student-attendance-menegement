@@ -1,6 +1,5 @@
 import datetime
 
-from django.db import IntegrityError
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 from rest_framework.exceptions import PermissionDenied, ValidationError
@@ -23,6 +22,7 @@ class StudentRelatedField(serializers.RelatedField):
 
 
 class AttendanceReportSerializer(serializers.ModelSerializer):
+    student_number = serializers.SerializerMethodField()
     student = serializers.SerializerMethodField()
 
     def __init__(self, *args, **kwargs):
@@ -34,10 +34,13 @@ class AttendanceReportSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = AttendanceReport
-        fields = ('student_id', 'student', 'status')
+        fields = ('student_id', 'student_number', 'student', 'status',)
 
     def get_student(self, obj):
         return obj.student.full_name
+
+    def get_student_number(self, obj):
+        return obj.student.id
 
 
 class CourseIdSerializer(serializers.Serializer):
@@ -58,6 +61,7 @@ class CourseIdSerializer(serializers.Serializer):
 
 
 class AttendanceSerializer(serializers.Serializer):
+    id = serializers.SerializerMethodField()
     date = serializers.DateField()
 
     def __init__(self, *args, **kwargs):
@@ -65,6 +69,9 @@ class AttendanceSerializer(serializers.Serializer):
         kwargs = self.context['kwargs']
         self.fields['reports'] = AttendanceReportSerializer(
             many=True, context={"course_id": kwargs['course_id']})
+
+    def get_id(self, obj):
+        return obj.id
 
     def validate_date(self, value):
         current_date = datetime.date.today()
