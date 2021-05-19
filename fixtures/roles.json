@@ -18,5 +18,10 @@
     "model": "users.role",
     "pk": 4,
     "fields": {}
+},
+{
+    "model": "users.role",
+    "pk": 5,
+    "fields": {}
 }
 ]

@@ -11,12 +11,14 @@ class Role(models.Model):
     SUPERVISOR = 2
     TEACHER = 3
     STUDENT = 4
+    SUPERUSER = 5
 
     ROLE_CHOICES = (
         (ADMIN, 'Admin'),
         (TEACHER, 'Teacher'),
         (SUPERVISOR, 'Supervisor'),
         (STUDENT, 'Student'),
+        (SUPERUSER, 'Superuser'),
     )
     id = models.PositiveSmallIntegerField(choices=ROLE_CHOICES, primary_key=True)
 
@@ -111,6 +113,14 @@ class AdvisorProfile(models.Model):
     def save(self, *args, **kwargs):
         super(AdvisorProfile, self).save(*args, **kwargs)
         save_image(self)
+
+    def __str__(self):
+        return f'{self.user.full_name}-profile'
+
+
+class AdminProfile(models.Model):
+    user = models.OneToOneField(Advisor, on_delete=models.CASCADE, related_name='admin_profile')
+    university = models.ForeignKey('university_app.University', on_delete=models.SET_NULL, null=True)
 
     def __str__(self):
         return f'{self.user.full_name}-profile'

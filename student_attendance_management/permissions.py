@@ -3,6 +3,17 @@ from rest_framework import permissions
 from users.models import Role
 
 
+class SuperUserOnly(permissions.BasePermission):
+    message = 'This endpoint for SuperUser only.'
+
+    def has_permission(self, request, view):
+        user = request.user
+        role = Role.objects.get(id=Role.SUPERUSER)
+        if role in user.roles.all():
+            return True
+        return False
+
+
 class AdminOnly(permissions.BasePermission):
     message = 'This endpoint for ADMINS only.'
 

@@ -3,12 +3,14 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 
+from student_attendance_management.permissions import SuperUserOnly, AdminOnly
 from university_app.api.serializers import DepartmentSerializer, FacultySerializer, UniversitySerializer, \
     ClassSerializer, DepartmentRelatedSerializer
 from university_app.models import University, Department, Faculty, Class
 
 
 class UniversityView(APIView):
+    permission_classes = (SuperUserOnly,)
     queryset = University.objects.all()
     serializer_class = UniversitySerializer
 
@@ -45,6 +47,7 @@ class UniversityView(APIView):
 
 
 class DepartmentViewSet(ModelViewSet):
+    permission_classes = (AdminOnly,)
     serializer_class = DepartmentSerializer
 
     def get_queryset(self):
@@ -59,6 +62,7 @@ class DepartmentViewSet(ModelViewSet):
 
 
 class ClassViewSet(ModelViewSet):
+    permission_classes = (AdminOnly,)
     serializer_class = ClassSerializer
 
     def get_queryset(self):
@@ -75,5 +79,6 @@ class ClassViewSet(ModelViewSet):
 
 
 class FacultyViewSet(ModelViewSet):
+    permission_classes = (AdminOnly,)
     queryset = Faculty.objects.all()
     serializer_class = FacultySerializer
