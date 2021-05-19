@@ -2,7 +2,7 @@ from django.db import models
 
 
 class Course(models.Model):
-    name = models.CharField(max_length=30)
+    name = models.CharField(max_length=30, unique=True)
     credit = models.SmallIntegerField()
     co_class = models.ForeignKey('university_app.Class', on_delete=models.SET_NULL, null=True)
     students = models.ManyToManyField('users.Student', related_name='courses')

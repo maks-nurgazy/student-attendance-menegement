@@ -56,10 +56,10 @@ class ClassSerializer(serializers.ModelSerializer):
             raise ValidationError("This department does not exist")
         if department:
             try:
-                Class.objects.create(**validated_data, department=department)
+                obj = Class.objects.create(**validated_data, department=department)
             except IntegrityError:
                 raise ValidationError("This class already exists")
-            return
+            return obj
         else:
             raise NotFoundException()
 
@@ -72,4 +72,9 @@ class ClassSerializer(serializers.ModelSerializer):
 class FacultySerializer(serializers.ModelSerializer):
     class Meta:
         model = Faculty
-        fields = ('id', 'name', 'university')
+        fields = ('id', 'name')
+
+    def create(self, validated_data):
+        admin = self.context['admin']
+        university = admin.admin_profile.university
+        return Faculty.objects.create(**validated_data, university=university)

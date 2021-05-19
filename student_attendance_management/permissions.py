@@ -4,13 +4,16 @@ from users.models import Role
 
 
 class SuperUserOnly(permissions.BasePermission):
-    message = 'This endpoint for SuperUser only.'
+    message = 'This endpoint for SuperUsers only.'
 
     def has_permission(self, request, view):
         user = request.user
         role = Role.objects.get(id=Role.SUPERUSER)
-        if role in user.roles.all():
-            return True
+        try:
+            if role in user.roles.all():
+                return True
+        except AttributeError:
+            return False
         return False
 
 
@@ -20,8 +23,11 @@ class AdminOnly(permissions.BasePermission):
     def has_permission(self, request, view):
         user = request.user
         role = Role.objects.get(id=Role.ADMIN)
-        if role in user.roles.all():
-            return True
+        try:
+            if role in user.roles.all():
+                return True
+        except AttributeError:
+            return False
         return False
 
 
@@ -31,8 +37,11 @@ class StudentsOnly(permissions.BasePermission):
     def has_permission(self, request, view):
         user = request.user
         role = Role.objects.get(id=Role.STUDENT)
-        if role in user.roles.all():
-            return True
+        try:
+            if role in user.roles.all():
+                return True
+        except AttributeError:
+            return False
         return False
 
 
@@ -61,8 +70,11 @@ class SupervisorsOnly(permissions.BasePermission):
     def has_permission(self, request, view):
         user = request.user
         role = Role.objects.get(id=Role.SUPERVISOR)
-        if role in user.roles.all():
-            return True
+        try:
+            if role in user.roles.all():
+                return True
+        except AttributeError:
+            return False
         return False
 
 
@@ -72,6 +84,9 @@ class TeachersOnly(permissions.BasePermission):
     def has_permission(self, request, view):
         user = request.user
         role = Role.objects.get(id=Role.TEACHER)
-        if role in user.roles.all():
-            return True
+        try:
+            if role in user.roles.all():
+                return True
+        except AttributeError:
+            return False
         return False

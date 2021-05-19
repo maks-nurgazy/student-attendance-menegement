@@ -5,7 +5,7 @@ from django.utils.translation import ugettext_lazy as _
 import users.models
 
 
-class AdminManager(BaseUserManager):
+class SuperuserManager(BaseUserManager):
 
     def create_user(self, email, password, **extra_fields):
 
@@ -85,3 +85,9 @@ class StudentManager(Manager):
 
     def get_queryset(self, *args, **kwargs):
         return super().get_queryset(*args, **kwargs).filter(roles__in=[4])
+
+
+class AdminManager(Manager):
+
+    def get_queryset(self, *args, **kwargs):
+        return super().get_queryset(*args, **kwargs).filter(roles__in=[1])

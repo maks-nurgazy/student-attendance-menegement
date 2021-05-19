@@ -8,8 +8,8 @@ from rest_framework.viewsets import ModelViewSet
 
 from student_attendance_management.permissions import SupervisorsOnly
 from users.api.serializers import StudentSerializer, TeacherSerializer, UserLoginSerializer, AdvisorSerializer, \
-    AdvisorStudentSerializer, AdvisorStudentDetailSerializer
-from users.models import Student, Teacher, Advisor, User
+    AdvisorStudentSerializer, AdvisorStudentDetailSerializer, AdminSerializer
+from users.models import Student, Teacher, Advisor, User, Admin
 
 
 class StudentViewSet(ModelViewSet):
@@ -25,6 +25,11 @@ class TeacherViewSet(ModelViewSet):
 class AdvisorViewSet(ModelViewSet):
     queryset = Advisor.objects.all()
     serializer_class = AdvisorSerializer
+
+
+class AdminsViewSet(ModelViewSet):
+    queryset = Admin.objects.all()
+    serializer_class = AdminSerializer
 
 
 class UserLoginView(GenericAPIView):

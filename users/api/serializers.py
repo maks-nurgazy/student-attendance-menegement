@@ -4,8 +4,8 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
 from course_app.models import Course, Enrolled
-from users.models import User, Teacher, Student, Advisor, StudentProfile
-from university_app.models import Department, Class
+from users.models import User, Teacher, Student, Advisor, StudentProfile, Admin
+from university_app.models import Department, Class, University
 from rest_framework_simplejwt.tokens import RefreshToken
 
 
@@ -31,6 +31,19 @@ class ClassRelatedField(serializers.RelatedField):
         except Class.DoesNotExist:
             raise serializers.ValidationError('Class with this id does not exist')
         return st_class
+
+    def to_representation(self, instance):
+        return "hello"
+
+
+class UniversityRelatedField(serializers.RelatedField):
+
+    def to_internal_value(self, data):
+        try:
+            university = University.objects.get(id=data)
+        except University.DoesNotExist:
+            raise serializers.ValidationError('University with this id does not exist')
+        return university
 
     def to_representation(self, instance):
         return "hello"
@@ -150,6 +163,34 @@ class AdvisorSerializer(serializers.ModelSerializer):
             "class": co_class.num
         }
         return data
+
+
+class AdminSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(max_length=128, write_only=True)
+    email = serializers.EmailField(max_length=128)
+    university = UniversityRelatedField(queryset=University.objects.all(), write_only=True)
+    university_detail = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Admin
+        fields = ('id', 'first_name', 'last_name', 'email', 'password', "university", 'university_detail')
+
+    def get_fields(self, *args, **kwargs):
+        fields = super(AdminSerializer, self).get_fields(*args, **kwargs)
+        request = self.context.get('request', None)
+        if request and getattr(request, 'method', None) == "PUT":
+            fields.pop('password')
+        return fields
+
+    def get_university_detail(self, obj):
+        university = obj.admin_profile.university
+        return university.name
+
+    def update(self, instance, validated_data):
+        pass
+
+    def create(self, validated_data):
+        return User.objects.create_admin(**validated_data)
 
 
 class UserLoginSerializer(serializers.Serializer):

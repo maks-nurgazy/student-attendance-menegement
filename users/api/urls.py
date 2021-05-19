@@ -3,12 +3,13 @@ from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt import views as jwt_views
 
 from users.api.views import TeacherViewSet, AdvisorViewSet, StudentViewSet, UserLoginView, AdvisorStudentsView, \
-    AdvisorStudentsDetailView
+    AdvisorStudentsDetailView, AdminsViewSet
 
 router = DefaultRouter()
 router.register('students', StudentViewSet)
 router.register('teachers', TeacherViewSet)
 router.register('advisors', AdvisorViewSet)
+router.register('admins', AdminsViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),

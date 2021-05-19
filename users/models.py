@@ -3,7 +3,7 @@ from django.contrib.auth.base_user import AbstractBaseUser
 from django.contrib.auth.models import PermissionsMixin
 from django.db import models
 
-from users.managers import TeacherManager, StudentManager, AdminManager, AdvisorManager
+from users.managers import TeacherManager, StudentManager, AdminManager, AdvisorManager, SuperuserManager
 
 
 class Role(models.Model):
@@ -45,7 +45,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     def full_name(self):
         return f'{self.first_name} {self.last_name}'
 
-    objects = AdminManager()
+    objects = SuperuserManager()
 
     def __str__(self):
         return self.email
@@ -67,6 +67,13 @@ class Advisor(User):
 
 class Student(User):
     objects = StudentManager()
+
+    class Meta:
+        proxy = True
+
+
+class Admin(User):
+    objects = AdminManager()
 
     class Meta:
         proxy = True
