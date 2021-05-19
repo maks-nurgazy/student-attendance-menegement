@@ -2,6 +2,7 @@ from django.db import IntegrityError
 from rest_framework import serializers
 
 from course_app.models import Course, Enrolled, CourseApprove
+from users.models import Student
 
 
 class CourseRelatedField(serializers.RelatedField):
@@ -17,12 +18,34 @@ class CourseRelatedField(serializers.RelatedField):
         return None
 
 
+class CourseStudentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Student
+        fields = ('id', 'full_name')
+
+
+class CourseDetailSerializer(serializers.ModelSerializer):
+    teacher = serializers.SerializerMethodField()
+    students = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Course
+        fields = ('id', 'name', 'credit', 'co_class', 'teacher', 'students')
+
+    def get_teacher(self, obj):
+        return obj.teacher.full_name
+
+    def get_students(self, obj):
+        students = obj.students.all()
+        return CourseStudentSerializer(students, many=True).data
+
+
 class CourseSerializer(serializers.ModelSerializer):
     teacher = serializers.SerializerMethodField()
 
     class Meta:
         model = Course
-        fields = ('id', 'name', 'credit', 'co_class', 'teacher',)
+        fields = ('id', 'name', 'credit', 'co_class', 'teacher')
 
     def get_teacher(self, obj):
         return obj.teacher.full_name

@@ -6,7 +6,7 @@ from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 
 from course_app.api.serializers import CourseSerializer, EnrollmentSerializer, CourseRelatedField, \
-    TeacherCourseValidSerializer
+    TeacherCourseValidSerializer, CourseDetailSerializer
 from course_app.models import Course, Enrolled, CourseApprove
 from student_attendance_management.permissions import StudentsOnly, SupervisorsOnly, TeachersOnly
 from users.api.serializers import StudentSerializer, ValidApproveStudentSerializer
@@ -15,6 +15,11 @@ from users.api.serializers import StudentSerializer, ValidApproveStudentSerializ
 class CourseViewSet(ModelViewSet):
     queryset = Course.objects.all()
     serializer_class = CourseSerializer
+
+    def get_serializer_class(self):
+        if self.action == 'retrieve':
+            return CourseDetailSerializer
+        return CourseSerializer
 
 
 class StudentCourseView(ListAPIView):
