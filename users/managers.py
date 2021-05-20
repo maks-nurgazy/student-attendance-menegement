@@ -1,6 +1,6 @@
 from django.contrib.auth.base_user import BaseUserManager
-from django.contrib.auth.models import Group
 from django.db.models import Manager
+from django.dispatch import Signal
 from django.utils.translation import ugettext_lazy as _
 
 import users.models
@@ -25,33 +25,24 @@ class SuperuserManager(BaseUserManager):
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
         super_user = self.create_user(email, password, **extra_fields)
-        super_user.roles.add(5)
-
         return super_user
 
     def create_student(self, email, password, **extra_fields):
-        group = Group.objects.get(name="StudentGroup")
         extra_fields.setdefault('is_active', True)
         extra_fields.setdefault('is_staff', False)
         student = self.create_user(email, password, **extra_fields)
-        student.roles.add(4)
-        users.models.StudentProfile.objects.create(user=student)
-        group.user_set.add(student)
         return student
 
     def create_teacher(self, email, password, **extra_fields):
-        group = Group.objects.get(name="TeacherGroup")
         extra_fields.setdefault('is_active', True)
         extra_fields.setdefault('is_staff', True)
         department = extra_fields.pop("department")
         teacher = self.create_user(email, password, **extra_fields)
-        teacher.roles.add(3)
-        users.models.TeacherProfile.objects.create(user=teacher, department=department)
-        group.user_set.add(teacher)
+        profile = teacher.teacher_profile
+        profile.department = department
         return teacher
 
     def create_advisor(self, email, password, **extra_fields):
-        group = Group.objects.get(name="AdvisorGroup")
         extra_fields.setdefault('is_active', True)
         extra_fields.setdefault('is_staff', True)
         co_class = extra_fields.pop("co_class")
@@ -59,13 +50,11 @@ class SuperuserManager(BaseUserManager):
         if created:
             advisor.set_password(password)
             advisor.save(using=self._db)
-        advisor.roles.add(2)
-        users.models.AdvisorProfile.objects.get_or_create(user=advisor, co_class=co_class)
-        group.user_set.add(advisor)
+        profile = advisor.advisor_profile
+        profile.co_class = co_class
         return advisor
 
     def create_admin(self, email, password, **extra_fields):
-        group = Group.objects.get(name="AdminGroup")
         extra_fields.setdefault('is_active', True)
         extra_fields.setdefault('is_staff', True)
         university = extra_fields.pop("university")
@@ -73,9 +62,8 @@ class SuperuserManager(BaseUserManager):
         if created:
             admin.set_password(password)
             admin.save(using=self._db)
-        admin.roles.add(1)
-        users.models.AdminProfile.objects.get_or_create(user=admin, university=university)
-        group.user_set.add(admin)
+        profile = admin.admin_profile
+        profile.university = university
         return admin
 
 

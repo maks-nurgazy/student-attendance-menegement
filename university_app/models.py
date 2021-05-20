@@ -7,6 +7,9 @@ class University(models.Model):
     def __str__(self):
         return self.name
 
+    class Meta:
+        verbose_name_plural = "Universities"
+
 
 class Faculty(models.Model):
     name = models.CharField(max_length=50, unique=True)
@@ -14,6 +17,9 @@ class Faculty(models.Model):
 
     def __str__(self):
         return self.name
+
+    class Meta:
+        verbose_name_plural = "Faculties"
 
 
 class Department(models.Model):

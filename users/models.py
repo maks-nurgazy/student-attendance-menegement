@@ -1,7 +1,8 @@
 from PIL import Image
 from django.contrib.auth.base_user import AbstractBaseUser
-from django.contrib.auth.models import PermissionsMixin
+from django.contrib.auth.models import PermissionsMixin, Group
 from django.db import models
+from django.dispatch import Signal
 
 from users.managers import TeacherManager, StudentManager, AdminManager, AdvisorManager, SuperuserManager
 
@@ -41,6 +42,8 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     USERNAME_FIELD = 'email'
 
+    role = Role.SUPERUSER
+
     @property
     def full_name(self):
         return f'{self.first_name} {self.last_name}'
@@ -50,8 +53,36 @@ class User(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         return self.email
 
+    def save(self, *args, **kwargs):
+        if not self.id:
+            self.is_staff = True
+        super(User, self).save(*args, **kwargs)
+        self.roles.add(self.role)
+        admin_role = Role.objects.get(id=Role.ADMIN)
+        teacher_role = Role.objects.get(id=Role.TEACHER)
+        student_role = Role.objects.get(id=Role.STUDENT)
+        advisor_role = Role.objects.get(id=Role.SUPERVISOR)
+        roles = self.roles.all()
+        if admin_role in roles:
+            group, created = Group.objects.get_or_create(name="AdminGroup")
+            group.user_set.add(self)
+            AdminProfile.objects.get_or_create(user=self)
+        if advisor_role in roles:
+            group, created = Group.objects.get_or_create(name="AdvisorGroup")
+            group.user_set.add(self)
+            AdvisorProfile.objects.get_or_create(user=self)
+        if teacher_role in roles:
+            group, created = Group.objects.get_or_create(name="TeacherGroup")
+            group.user_set.add(self)
+            TeacherProfile.objects.get_or_create(user=self)
+        if student_role in roles:
+            group, created = Group.objects.get_or_create(name="StudentGroup")
+            group.user_set.add(self)
+            StudentProfile.objects.get_or_create(user=self)
+
 
 class Teacher(User):
+    role = Role.TEACHER
     objects = TeacherManager()
 
     class Meta:
@@ -59,6 +90,7 @@ class Teacher(User):
 
 
 class Advisor(User):
+    role = Role.SUPERVISOR
     objects = AdvisorManager()
 
     class Meta:
@@ -66,6 +98,7 @@ class Advisor(User):
 
 
 class Student(User):
+    role = Role.STUDENT
     objects = StudentManager()
 
     class Meta:
@@ -73,6 +106,7 @@ class Student(User):
 
 
 class Admin(User):
+    role = Role.ADMIN
     objects = AdminManager()
 
     class Meta:
@@ -126,7 +160,7 @@ class AdvisorProfile(models.Model):
 
 
 class AdminProfile(models.Model):
-    user = models.OneToOneField(Advisor, on_delete=models.CASCADE, related_name='admin_profile')
+    user = models.OneToOneField(Admin, on_delete=models.CASCADE, related_name='admin_profile')
     university = models.ForeignKey('university_app.University', on_delete=models.SET_NULL, null=True)
 
     def __str__(self):

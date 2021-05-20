@@ -2,7 +2,7 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib import admin
 from django.utils.translation import gettext as _
 
-from users.models import User, Teacher, Student
+from users.models import User, Teacher, Student, Admin, AdminProfile
 
 
 class UserAdmin(BaseUserAdmin):
@@ -32,11 +32,6 @@ class UserAdmin(BaseUserAdmin):
     )
 
 
-@admin.register(User)
-class UserAdmin(UserAdmin):
-    pass
-
-
 @admin.register(Student)
 class StudentAdmin(UserAdmin):
     def save_related(self, request, form, formsets, change):
@@ -49,3 +44,15 @@ class TeacherAdmin(UserAdmin):
     def save_related(self, request, form, formsets, change):
         super(TeacherAdmin, self).save_related(request, form, formsets, change)
         form.instance.roles.add(3)
+
+
+@admin.register(Admin)
+class AdminAdmin(UserAdmin):
+    def save_related(self, request, form, formsets, change):
+        super(AdminAdmin, self).save_related(request, form, formsets, change)
+        form.instance.roles.add(1)
+
+
+@admin.register(AdminProfile)
+class AdminProfileAdmin(admin.ModelAdmin):
+    pass
