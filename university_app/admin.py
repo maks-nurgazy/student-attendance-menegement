@@ -1,3 +1,8 @@
 from django.contrib import admin
 
-# Register your models here.
+from university_app.models import Faculty
+
+
+@admin.register(Faculty)
+class FacultyAdmin(admin.ModelAdmin):
+    pass
