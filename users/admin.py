@@ -2,6 +2,7 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib import admin
 from django.utils.translation import gettext as _
 
+from users.forms import TeacherForm, StudentForm
 from users.models import User, Teacher, Student, Admin, AdminProfile
 
 
@@ -33,17 +34,36 @@ class UserAdmin(BaseUserAdmin):
 
 
 @admin.register(Student)
-class StudentAdmin(UserAdmin):
-    def save_related(self, request, form, formsets, change):
-        super(StudentAdmin, self).save_related(request, form, formsets, change)
-        form.instance.roles.add(4)
+class StudentAdmin(admin.ModelAdmin):
+    form = StudentForm
+
+    def save_model(self, request, obj, form, change):
+        valid = form.is_valid()
+        if valid:
+            data = form.cleaned_data
+            dep = data.pop('department')
+            st_class = data.pop('class')
+            print(dep)
+            print(st_class)
+            # super(StudentAdmin, self).save_model(request, obj, form, change)
+            # profile = obj.teacher_profile
+            # profile.department = dep
+            # profile.save()
 
 
 @admin.register(Teacher)
-class TeacherAdmin(UserAdmin):
-    def save_related(self, request, form, formsets, change):
-        super(TeacherAdmin, self).save_related(request, form, formsets, change)
-        form.instance.roles.add(3)
+class TeacherAdmin(admin.ModelAdmin):
+    form = TeacherForm
+
+    def save_model(self, request, obj, form, change):
+        valid = form.is_valid()
+        if valid:
+            data = form.cleaned_data
+            dep = data.pop('department')
+            super(TeacherAdmin, self).save_model(request, obj, form, change)
+            profile = obj.teacher_profile
+            profile.department = dep
+            profile.save()
 
 
 @admin.register(Admin)
