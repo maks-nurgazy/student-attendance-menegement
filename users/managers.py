@@ -30,40 +30,49 @@ class SuperuserManager(BaseUserManager):
     def create_student(self, email, password, **extra_fields):
         extra_fields.setdefault('is_active', True)
         extra_fields.setdefault('is_staff', False)
-        student = self.create_user(email, password, **extra_fields)
+        student, created = users.models.Teacher.objects.get_or_create(email=email, **extra_fields)
+        if created:
+            student.set_password(password)
+            student.save(using=self._db)
         return student
 
     def create_teacher(self, email, password, **extra_fields):
         extra_fields.setdefault('is_active', True)
         extra_fields.setdefault('is_staff', True)
         department = extra_fields.pop("department")
-        teacher = self.create_user(email, password, **extra_fields)
+        teacher, created = users.models.Teacher.objects.get_or_create(email=email, **extra_fields)
+        if created:
+            teacher.set_password(password)
+            teacher.save(using=self._db)
         profile = teacher.teacher_profile
         profile.department = department
+        profile.save()
         return teacher
 
     def create_advisor(self, email, password, **extra_fields):
         extra_fields.setdefault('is_active', True)
         extra_fields.setdefault('is_staff', True)
         co_class = extra_fields.pop("co_class")
-        advisor, created = users.models.User.objects.get_or_create(email=email, **extra_fields)
+        advisor, created = users.models.Advisor.objects.get_or_create(email=email, **extra_fields)
         if created:
             advisor.set_password(password)
             advisor.save(using=self._db)
         profile = advisor.advisor_profile
         profile.co_class = co_class
+        profile.save()
         return advisor
 
     def create_admin(self, email, password, **extra_fields):
         extra_fields.setdefault('is_active', True)
         extra_fields.setdefault('is_staff', True)
         university = extra_fields.pop("university")
-        admin, created = users.models.User.objects.get_or_create(email=email, **extra_fields)
+        admin, created = users.models.Admin.objects.get_or_create(email=email, **extra_fields)
         if created:
             admin.set_password(password)
             admin.save(using=self._db)
         profile = admin.admin_profile
         profile.university = university
+        profile.save()
         return admin
 
 
