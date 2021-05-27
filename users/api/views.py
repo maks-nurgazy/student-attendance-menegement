@@ -16,6 +16,10 @@ class StudentViewSet(ModelViewSet):
     queryset = Student.objects.all()
     serializer_class = StudentSerializer
 
+    def update(self, request, *args, **kwargs):
+        print(request.data)
+        return Response("success")
+
 
 class TeacherViewSet(ModelViewSet):
     queryset = Teacher.objects.all()

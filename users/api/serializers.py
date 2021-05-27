@@ -20,7 +20,7 @@ class DepartmentRelatedField(serializers.RelatedField):
         return department
 
     def to_representation(self, instance):
-        return "hello"
+        return instance.id
 
 
 class ClassRelatedField(serializers.RelatedField):
@@ -33,7 +33,7 @@ class ClassRelatedField(serializers.RelatedField):
         return st_class
 
     def to_representation(self, instance):
-        return "hello"
+        return instance.id
 
 
 class UniversityRelatedField(serializers.RelatedField):
@@ -46,7 +46,7 @@ class UniversityRelatedField(serializers.RelatedField):
         return university
 
     def to_representation(self, instance):
-        return "hello"
+        return instance.id
 
 
 class StudentSerializer(serializers.ModelSerializer):

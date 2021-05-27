@@ -30,7 +30,7 @@ class SuperuserManager(BaseUserManager):
     def create_student(self, email, password, **extra_fields):
         extra_fields.setdefault('is_active', True)
         extra_fields.setdefault('is_staff', False)
-        student, created = users.models.Teacher.objects.get_or_create(email=email, **extra_fields)
+        student, created = users.models.Student.objects.get_or_create(email=email, **extra_fields)
         if created:
             student.set_password(password)
             student.save(using=self._db)
