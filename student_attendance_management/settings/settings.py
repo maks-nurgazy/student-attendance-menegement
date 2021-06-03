@@ -22,6 +22,7 @@ INSTALLED_APPS = [
     'university_app',
     'rest_framework',
     'corsheaders',
+    'ajax_select',
 
     'django.contrib.admin',
     'django.contrib.auth',
@@ -51,7 +52,7 @@ ROOT_URLCONF = 'student_attendance_management.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': []
+        'DIRS': [BASE_DIR / 'templates']
         ,
         'APP_DIRS': True,
         'OPTIONS': {

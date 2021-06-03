@@ -1,6 +1,7 @@
 import math
 
 
+
 def square(s):
     p = 4 * s
     a = s * s

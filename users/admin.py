@@ -37,6 +37,9 @@ class UserAdmin(BaseUserAdmin):
 class StudentAdmin(admin.ModelAdmin):
     form = StudentForm
 
+    class Media:
+        js = ('//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js', "my_code.js",)
+
     def save_model(self, request, obj, form, change):
         valid = form.is_valid()
         if valid:
@@ -68,6 +71,7 @@ class TeacherAdmin(admin.ModelAdmin):
 
 @admin.register(Admin)
 class AdminAdmin(UserAdmin):
+
     def save_related(self, request, form, formsets, change):
         super(AdminAdmin, self).save_related(request, form, formsets, change)
         form.instance.roles.add(1)

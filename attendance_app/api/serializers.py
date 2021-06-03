@@ -18,7 +18,7 @@ class StudentRelatedField(serializers.RelatedField):
         return student
 
     def to_representation(self, instance):
-        return "hello"
+        return instance.full_name
 
 
 class AttendanceReportSerializer(serializers.ModelSerializer):

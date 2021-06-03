@@ -1,3 +1,4 @@
+from ajax_select import fields
 from django import forms
 from django.contrib.admin import site
 from django.contrib.admin.widgets import RelatedFieldWidgetWrapper
@@ -24,6 +25,9 @@ class StudentForm(forms.ModelForm):
     password = forms.CharField(max_length=128, widget=forms.PasswordInput)
     department = forms.ModelChoiceField(queryset=None)
     st_class = forms.ModelChoiceField(queryset=None)
+
+    # department = forms.ChoiceField(widget=fields.AutoCompleteSelectWidget('departments'))
+    # st_class = fields.AutoCompleteSelectField('classes')
 
     def __init__(self, *args, **kwargs):
         form = super(StudentForm, self).__init__(*args, **kwargs)

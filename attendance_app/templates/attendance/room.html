@@ -85,7 +85,7 @@
     const secondStatus = document.getElementById("secondStatus");
 
     const chatSocket = new WebSocket(
-        'ws://'
+        'wss://'
         + window.location.host
         + '/ws/attendance/'
         + roomName
@@ -102,6 +102,9 @@
             if (data.id === 2) {
                 secondStatus.innerText = "Registered";
             }
+        }
+        if (data.kind === "log") {
+            alert("Student " + data.id + " keldi");
         }
         document.querySelector('#chat-log').value += (data.id + 'registering\n');
     };
