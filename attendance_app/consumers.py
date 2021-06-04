@@ -1,8 +1,10 @@
+import json
+
 from asgiref.sync import async_to_sync
-from channels.generic.websocket import JsonWebsocketConsumer
+from channels.generic.websocket import JsonWebsocketConsumer, WebsocketConsumer
 
 
-class AttendanceConsumer(JsonWebsocketConsumer):
+class AttendanceConsumer(WebsocketConsumer):
     def connect(self):
         self.room_name = self.scope['url_route']['kwargs']['room_name']
         self.room_group_name = 'chat_%s' % self.room_name
@@ -19,18 +21,41 @@ class AttendanceConsumer(JsonWebsocketConsumer):
             self.channel_name
         )
 
-    def receive_json(self, content, **kwargs):
-        print(content)
-        # kind = content['kind']
-        async_to_sync(self.channel_layer.group_send)(
-            self.room_group_name,
-            {
-                'type': 'chat_message',
-                'message': content
-            }
-        )
+    def receive(self, text_data=None, bytes_data=None):
+        try:
+            text_data_json = json.loads(text_data)
+            kind = text_data_json['kind']
+            async_to_sync(self.channel_layer.group_send)(
+                self.room_group_name,
+                {
+                    'type': 'chat_message1',
+                    'message': text_data_json['id']
+                }
+            )
+        except:
+            print(text_data)
+            # kind = content['kind']
+
+            async_to_sync(self.channel_layer.group_send)(
+                self.room_group_name,
+                {
+                    'type': 'chat_message',
+                    'message': text_data
+                }
+            )
 
     def chat_message(self, event):
         message = event['message']
         print(message)
-        self.send_json(message)
+        self.send(text_data=json.dumps({
+            'kind': "log",
+            'id': message
+        }))
+
+    def chat_message1(self, event):
+        message = event['message']
+        print(message)
+        self.send(text_data=json.dumps({
+            'kind': "reg",
+            'id': message
+        }))
