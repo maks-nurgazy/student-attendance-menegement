@@ -1,7 +1,7 @@
 import json
 
 from asgiref.sync import async_to_sync
-from channels.generic.websocket import JsonWebsocketConsumer, WebsocketConsumer
+from channels.generic.websocket import WebsocketConsumer
 
 
 class AttendanceConsumer(WebsocketConsumer):
@@ -25,37 +25,69 @@ class AttendanceConsumer(WebsocketConsumer):
         try:
             text_data_json = json.loads(text_data)
             kind = text_data_json['kind']
-            async_to_sync(self.channel_layer.group_send)(
-                self.room_group_name,
-                {
-                    'type': 'chat_message1',
-                    'message': text_data_json['id']
-                }
-            )
+            if kind == "reg":
+                data = json.dumps({
+                    "kind": "reg",
+                    "id": text_data_json['id']
+                })
+                async_to_sync(self.channel_layer.group_send)(
+                    self.room_group_name,
+                    {
+                        'type': 'send_message',
+                        'message': data
+                    }
+                )
+            elif kind == "add":
+                data = json.dumps({
+                    "kind": "add",
+                    "id": text_data_json['id']
+                })
+                async_to_sync(self.channel_layer.group_send)(
+                    self.room_group_name,
+                    {
+                        'type': 'send_message',
+                        'message': data
+                    }
+                )
+            else:
+                data = json.dumps({
+                    "kind": "err",
+                    "message": "Error occured, contact to Maksatbek"
+                })
+                async_to_sync(self.channel_layer.group_send)(
+                    self.room_group_name,
+                    {
+                        'type': 'send_message',
+                        'message': data
+                    }
+                )
         except:
-            print(text_data)
-            # kind = content['kind']
+            try:
+                id = int(text_data)
+                data = json.dumps({
+                    "kind": "log",
+                    "id": id
+                })
+                async_to_sync(self.channel_layer.group_send)(
+                    self.room_group_name,
+                    {
+                        'type': 'send_message',
+                        'message': data
+                    }
+                )
+            except ValueError:
+                data = json.dumps({
+                    "kind": "err",
+                    "message": "Invalid data format"
+                })
+                async_to_sync(self.channel_layer.group_send)(
+                    self.room_group_name,
+                    {
+                        'type': 'send_message',
+                        'message': data
+                    }
+                )
 
-            async_to_sync(self.channel_layer.group_send)(
-                self.room_group_name,
-                {
-                    'type': 'chat_message',
-                    'message': text_data
-                }
-            )
-
-    def chat_message(self, event):
-        message = event['message']
-        print(message)
-        self.send(text_data=json.dumps({
-            'kind': "log",
-            'id': message
-        }))
-
-    def chat_message1(self, event):
-        message = event['message']
-        print(message)
-        self.send(text_data=json.dumps({
-            'kind': "reg",
-            'id': message
-        }))
+    def send_message(self, event):
+        data = json.dumps(event['message'])
+        self.send(text_data=data)

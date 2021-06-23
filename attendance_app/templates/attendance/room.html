@@ -83,6 +83,9 @@
     const secondBtn = document.getElementById("secondBtn");
     const firstStatus = document.getElementById("firstStatus");
     const secondStatus = document.getElementById("secondStatus");
+    const textArea = document.getElementById("chat-log");
+
+    let count = 1;
 
     const chatSocket = new WebSocket(
         'ws://'
@@ -93,20 +96,29 @@
     );
 
     chatSocket.onmessage = function (e) {
-        console.log(e.data);
-        const data = JSON.parse(e.data);
+        const rec_data = JSON.parse(e.data);
+        const data = JSON.parse(rec_data)
         if (data.kind === "add") {
             if (data.id === 1) {
-                firstStatus.innerText = "Registered";
+                textArea.value += `${count++} Jill Smith registered!\n`;
+                firstBtn.innerText = "Registered";
             }
             if (data.id === 2) {
-                secondStatus.innerText = "Registered";
+                textArea.value += `${count++} Eve Jackson registered!\n`;
+                secondBtn.innerText = "Registered";
             }
         }
         if (data.kind === "log") {
-            alert("Student " + data.id + " keldi");
+            if (data.id === 1) {
+                console.log("bir")
+                textArea.value += `${count++} Jill Smith Present in class!\n`;
+                firstStatus.innerText = "Present";
+            }
+            if (data.id === 2) {
+                textArea.value += `${count++} Eve Jackson Present in class!\n`;
+                secondStatus.innerText = "Present";
+            }
         }
-        document.querySelector('#chat-log').value += (data.id + 'registering\n');
     };
 
     chatSocket.onclose = function (e) {
@@ -123,17 +135,12 @@
     document.querySelector('#chat-message-submit').onclick = function (e) {
         const messageInputDom = document.querySelector('#chat-message-input');
         const message = messageInputDom.value;
-        chatSocket.send(JSON.stringify({
-            'kind': "reg",
-            'id': message
-        }));
+        chatSocket.send(message);
         messageInputDom.value = '';
     };
 
 
     firstBtn.onclick = function (e) {
-        firstStatus.innerText = "Registering...";
-
         chatSocket.send(JSON.stringify({
             'kind': "reg",
             'id': 1
@@ -141,7 +148,6 @@
 
     };
     secondBtn.onclick = function (e) {
-        secondStatus.innerText = "Registering...";
         chatSocket.send(JSON.stringify({
             'kind': "reg",
             'id': 2
