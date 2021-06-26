@@ -90,4 +90,7 @@ class AttendanceConsumer(WebsocketConsumer):
 
     def send_message(self, event):
         data = json.dumps(event['message'])
+        print()
+        print(data)
+        print(event)
         self.send(text_data=data)
